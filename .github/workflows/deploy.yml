@@ -20,6 +20,11 @@ jobs:
       - name: Build
         run: npm run build
 
+      - name: Create Pages project if not exists
+        run: npx wrangler pages project create spacecat-halving-tracker --production-branch main || true
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+
       - name: Deploy to Cloudflare Pages
         uses: cloudflare/wrangler-action@v3
         with:
