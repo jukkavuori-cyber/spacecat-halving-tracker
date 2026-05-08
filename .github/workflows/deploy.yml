@@ -20,6 +20,15 @@ jobs:
       - name: Build
         run: npm run build
 
+      - name: Install Playwright Chromium
+        run: npx playwright install chromium --with-deps
+
+      - name: Generate OG image with live data
+        run: node scripts/gen-og.js
+
+      - name: Copy fresh OG image to dist
+        run: cp public/og-image.png dist/og-image.png
+
       - name: Create Pages project if not exists
         run: npx wrangler pages project create spacecat-halving-tracker --production-branch main || true
         env:

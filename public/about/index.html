@@ -1,0 +1,483 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>What is the Bitcoin Halving? — SpaceCat</title>
+  <meta name="description" content="The Bitcoin halving cuts the block reward in half every 210,000 blocks (~4 years). Learn how it works, why it matters, and track the next one live." />
+  <link rel="canonical" href="https://spacecat.academy/about" />
+  <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+
+  <!-- Open Graph -->
+  <meta property="og:type"        content="article" />
+  <meta property="og:url"         content="https://spacecat.academy/about" />
+  <meta property="og:title"       content="What is the Bitcoin Halving? — SpaceCat" />
+  <meta property="og:description" content="The Bitcoin halving cuts the block reward in half every 210,000 blocks. Learn how it works and why it drives Bitcoin cycles." />
+  <meta property="og:image"       content="https://spacecat.academy/og-image.png" />
+  <meta property="og:site_name"   content="SpaceCat" />
+
+  <!-- Twitter Card -->
+  <meta name="twitter:card"        content="summary_large_image" />
+  <meta name="twitter:title"       content="What is the Bitcoin Halving? — SpaceCat" />
+  <meta name="twitter:description" content="The Bitcoin halving cuts the block reward in half every 210,000 blocks. Learn how it works and why it drives Bitcoin cycles." />
+  <meta name="twitter:image"       content="https://spacecat.academy/og-image.png" />
+
+  <!-- JSON-LD -->
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "Article",
+    "headline": "What is the Bitcoin Halving?",
+    "description": "The Bitcoin halving cuts the block reward in half every 210,000 blocks (~4 years). Learn how it works, why it matters, and track the next one live.",
+    "url": "https://spacecat.academy/about",
+    "author": { "@type": "Organization", "name": "SpaceCat" },
+    "publisher": { "@type": "Organization", "name": "SpaceCat", "url": "https://spacecat.academy" }
+  }
+  </script>
+
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;600;700;900&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet" />
+
+  <style>
+    *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+    :root {
+      --bg:       #02020e;
+      --surface:  oklch(.075 .04 265 / .7);
+      --border:   oklch(.72 .28 285 / .18);
+      --accent:   #a066ff;
+      --accent-b: #40c8e0;
+      --gold:     #e0a020;
+      --green:    #50dc78;
+      --text:     #e8e8ff;
+      --dim:      #556688;
+      --fh:       'Orbitron', sans-serif;
+      --fm:       'Space Mono', monospace;
+    }
+
+    html { font-size: 16px; scroll-behavior: smooth; }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: var(--fm);
+      min-height: 100vh;
+      position: relative;
+      overflow-x: hidden;
+    }
+
+    /* Background atmosphere */
+    body::before {
+      content: '';
+      position: fixed; inset: 0; pointer-events: none; z-index: 0;
+      background:
+        radial-gradient(ellipse 60% 50% at 15% 20%, oklch(.35 .18 285 / .12) 0%, transparent 60%),
+        radial-gradient(ellipse 50% 40% at 85% 75%, oklch(.55 .22 195 / .10) 0%, transparent 60%);
+    }
+
+    /* Stars */
+    body::after {
+      content: '';
+      position: fixed; inset: 0; pointer-events: none; z-index: 0;
+      background:
+        radial-gradient(1.5px 1.5px at  8%  7%, #fff 0%, transparent 100%),
+        radial-gradient(1px   1px   at 17% 14%, #aaddff 0%, transparent 100%),
+        radial-gradient(1px   1px   at 33%  4%, #fff 0%, transparent 100%),
+        radial-gradient(1.5px 1.5px at 48% 11%, #fff 0%, transparent 100%),
+        radial-gradient(1px   1px   at 63%  5%, #aaddff 0%, transparent 100%),
+        radial-gradient(1px   1px   at 79%  9%, #fff 0%, transparent 100%),
+        radial-gradient(1px   1px   at 91%  3%, #aaddff 0%, transparent 100%),
+        radial-gradient(1px   1px   at  5% 22%, #fff 0%, transparent 100%),
+        radial-gradient(1px   1px   at 88% 28%, #fff 0%, transparent 100%),
+        radial-gradient(1px   1px   at 22% 88%, #aaddff 0%, transparent 100%),
+        radial-gradient(1px   1px   at 76% 82%, #fff 0%, transparent 100%),
+        radial-gradient(1px   1px   at 44% 94%, #aaddff 0%, transparent 100%);
+    }
+
+    /* ── NAV ── */
+    nav {
+      position: sticky; top: 0; z-index: 100;
+      background: oklch(.07 .04 265 / .92);
+      border-bottom: 1px solid var(--border);
+      backdrop-filter: blur(14px);
+      padding: 0 clamp(20px, 5vw, 80px);
+      display: flex; align-items: center; justify-content: space-between;
+      height: 56px;
+    }
+
+    .nav-logo {
+      display: flex; align-items: center; gap: 12px;
+      text-decoration: none; color: inherit;
+    }
+    .nav-logo .cat { font-size: 26px; filter: drop-shadow(0 0 8px oklch(.72 .28 285 / .7)); }
+    .nav-logo .name {
+      font-family: var(--fh); font-weight: 900; font-size: .85rem;
+      letter-spacing: .16em;
+      background: linear-gradient(100deg, var(--accent), var(--accent-b));
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
+    }
+    .nav-logo .sub { font-size: .42rem; letter-spacing: .2em; color: var(--dim); margin-top: 1px; }
+
+    .nav-cta {
+      display: inline-flex; align-items: center; gap: 7px;
+      font-family: var(--fh); font-size: .5rem; letter-spacing: .14em; font-weight: 700;
+      color: var(--accent); border: 1px solid var(--accent);
+      padding: 7px 16px; text-decoration: none;
+      transition: all .2s;
+    }
+    .nav-cta:hover { background: oklch(.72 .28 285 / .12); box-shadow: 0 0 14px oklch(.72 .28 285 / .25); }
+    .nav-cta .dot { width: 6px; height: 6px; border-radius: 50%; background: var(--green); box-shadow: 0 0 6px var(--green); }
+
+    /* ── WRAPPER ── */
+    .wrapper {
+      position: relative; z-index: 1;
+      max-width: 860px; margin: 0 auto;
+      padding: 64px clamp(20px, 5vw, 48px) 96px;
+    }
+
+    /* ── HERO ── */
+    .hero { text-align: center; margin-bottom: 72px; }
+
+    .hero-label {
+      display: inline-block; margin-bottom: 20px;
+      font-size: .48rem; letter-spacing: .28em; text-transform: uppercase;
+      color: var(--accent-b); border: 1px solid oklch(.82 .22 195 / .3);
+      padding: 5px 16px;
+    }
+
+    .hero h1 {
+      font-family: var(--fh); font-weight: 900;
+      font-size: clamp(2rem, 5vw, 3.2rem);
+      letter-spacing: .04em; line-height: 1.1;
+      margin-bottom: 20px;
+      background: linear-gradient(120deg, #f0f0ff 30%, var(--accent) 100%);
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
+    }
+
+    .hero p {
+      font-size: .85rem; line-height: 1.7;
+      color: var(--dim); max-width: 600px; margin: 0 auto;
+    }
+
+    /* ── SECTIONS ── */
+    .section { margin-bottom: 64px; }
+
+    .section-label {
+      font-size: .44rem; letter-spacing: .26em; text-transform: uppercase;
+      color: var(--accent); margin-bottom: 12px; display: flex; align-items: center; gap: 10px;
+    }
+    .section-label::after { content: ''; flex: 1; height: 1px; background: var(--border); }
+
+    .section h2 {
+      font-family: var(--fh); font-weight: 700;
+      font-size: clamp(1.1rem, 3vw, 1.6rem);
+      letter-spacing: .06em; margin-bottom: 20px; color: var(--text);
+    }
+
+    .section p {
+      font-size: .82rem; line-height: 1.8; color: #8899bb;
+      margin-bottom: 16px;
+    }
+    .section p strong { color: var(--text); font-weight: 700; }
+    .section p a { color: var(--accent); text-decoration: none; }
+    .section p a:hover { text-decoration: underline; }
+
+    /* ── INFO CARDS ── */
+    .info-grid {
+      display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 16px; margin: 28px 0;
+    }
+
+    .info-card {
+      background: var(--surface); border: 1px solid var(--border);
+      padding: 22px 20px; position: relative; overflow: hidden;
+    }
+    .info-card::before {
+      content: ''; position: absolute; top: 0; left: 0;
+      width: 3px; height: 100%;
+    }
+    .info-card.purple::before { background: var(--accent); box-shadow: 0 0 8px var(--accent); }
+    .info-card.cyan::before   { background: var(--accent-b); box-shadow: 0 0 8px var(--accent-b); }
+    .info-card.gold::before   { background: var(--gold); box-shadow: 0 0 8px var(--gold); }
+    .info-card.green::before  { background: var(--green); box-shadow: 0 0 8px var(--green); }
+
+    .info-icon { font-size: 1.8rem; margin-bottom: 12px; line-height: 1; }
+    .info-title {
+      font-family: var(--fh); font-size: .56rem; font-weight: 700;
+      letter-spacing: .14em; color: var(--text); margin-bottom: 8px;
+    }
+    .info-body { font-size: .74rem; line-height: 1.65; color: #7788aa; }
+
+    /* ── HALVING TABLE ── */
+    .halving-table { width: 100%; border-collapse: collapse; margin: 24px 0; }
+
+    .halving-table th {
+      font-size: .42rem; letter-spacing: .2em; text-transform: uppercase;
+      color: var(--dim); padding: 10px 14px; text-align: left;
+      border-bottom: 1px solid var(--border);
+    }
+    .halving-table td {
+      padding: 14px; font-size: .76rem; border-bottom: 1px solid oklch(.72 .28 285 / .07);
+      vertical-align: top;
+    }
+    .halving-table tr:last-child td { border-bottom: none; }
+    .halving-table tr:hover td { background: oklch(.72 .28 285 / .04); }
+
+    .halving-table .num {
+      font-family: var(--fh); font-size: .6rem; font-weight: 700;
+      color: var(--accent);
+    }
+    .halving-table .date { color: var(--dim); font-size: .7rem; }
+    .halving-table .reward { color: var(--gold); font-family: var(--fh); font-size: .64rem; }
+    .halving-table .peak { color: var(--green); }
+    .halving-table .next { color: var(--accent-b); }
+    .halving-table .badge {
+      display: inline-block; font-size: .38rem; letter-spacing: .14em;
+      background: oklch(.72 .28 285 / .15); border: 1px solid var(--border);
+      padding: 2px 8px; color: var(--accent);
+    }
+
+    /* Accent row */
+    .halving-table tr.current td { background: oklch(.09 .06 285 / .4); }
+    .halving-table tr.current .num { color: var(--gold); }
+
+    /* ── HIGHLIGHT BOX ── */
+    .highlight {
+      background: oklch(.09 .06 285 / .5);
+      border: 1px solid oklch(.72 .28 285 / .22);
+      border-left: 3px solid var(--accent);
+      padding: 20px 24px; margin: 28px 0;
+    }
+    .highlight p { margin: 0; color: #9aabcc; }
+    .highlight p strong { color: var(--text); }
+
+    /* ── CTA ── */
+    .cta-section {
+      text-align: center;
+      background: var(--surface); border: 1px solid var(--border);
+      padding: 52px 40px;
+      position: relative; overflow: hidden; margin-top: 72px;
+    }
+    .cta-section::before {
+      content: '';
+      position: absolute; inset: 0; pointer-events: none;
+      background: radial-gradient(ellipse 80% 60% at 50% 50%, oklch(.35 .18 285 / .08) 0%, transparent 70%);
+    }
+    .cta-cat { font-size: 3.5rem; margin-bottom: 16px; filter: drop-shadow(0 0 18px oklch(.72 .28 285 / .8)); }
+    .cta-section h2 {
+      font-family: var(--fh); font-weight: 900; font-size: clamp(.9rem, 2.5vw, 1.4rem);
+      letter-spacing: .1em; margin-bottom: 12px;
+    }
+    .cta-section p { color: var(--dim); font-size: .78rem; margin-bottom: 28px; }
+    .cta-btn {
+      display: inline-flex; align-items: center; gap: 8px;
+      font-family: var(--fh); font-size: .56rem; font-weight: 700; letter-spacing: .16em;
+      color: var(--bg); background: linear-gradient(100deg, var(--accent), var(--accent-b));
+      padding: 13px 32px; text-decoration: none;
+      transition: all .2s; position: relative;
+      box-shadow: 0 0 24px oklch(.72 .28 285 / .35);
+    }
+    .cta-btn:hover { box-shadow: 0 0 40px oklch(.72 .28 285 / .55); transform: translateY(-1px); }
+
+    /* ── FOOTER ── */
+    footer {
+      position: relative; z-index: 1;
+      border-top: 1px solid var(--border);
+      padding: 24px clamp(20px, 5vw, 80px);
+      display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 12px;
+      font-size: .52rem; color: var(--dim);
+    }
+    footer a { color: var(--accent); text-decoration: none; }
+    footer a:hover { text-decoration: underline; }
+
+    @media (max-width: 640px) {
+      .hero { margin-bottom: 48px; }
+      .section { margin-bottom: 48px; }
+      .halving-table th, .halving-table td { padding: 10px 8px; font-size: .68rem; }
+      .cta-section { padding: 36px 20px; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- ── NAV ── -->
+  <nav>
+    <a class="nav-logo" href="/">
+      <span class="cat">🐱</span>
+      <div>
+        <div class="name">SPACECAT</div>
+        <div class="sub">Bitcoin Halving Tracker</div>
+      </div>
+    </a>
+    <a class="nav-cta" href="/">
+      <span class="dot"></span>LIVE TRACKER
+    </a>
+  </nav>
+
+  <!-- ── MAIN ── -->
+  <main class="wrapper">
+
+    <!-- Hero -->
+    <section class="hero">
+      <div class="hero-label">Bitcoin 101</div>
+      <h1>What is the Bitcoin Halving?</h1>
+      <p>Every 210,000 blocks — roughly four years — the reward miners earn for finding a new block is cut in half. It is one of the most important and predictable events in Bitcoin's monetary policy.</p>
+    </section>
+
+    <!-- Section 1: The Mechanism -->
+    <section class="section">
+      <div class="section-label">The mechanism</div>
+      <h2>How does it work?</h2>
+      <p>Bitcoin's code was written so that <strong>only 21 million BTC will ever exist</strong>. New coins enter circulation as block rewards — payments made to miners who validate transactions and secure the network.</p>
+      <p>When Bitcoin launched in 2009, the reward was <strong>50 BTC per block</strong>. After every 210,000 blocks, that reward is cut in half automatically by the protocol. This event is called the <strong>halving</strong> (or "halvening").</p>
+
+      <div class="info-grid">
+        <div class="info-card purple">
+          <div class="info-icon">⛏️</div>
+          <div class="info-title">Block Time</div>
+          <div class="info-body">Bitcoin targets one new block every 10 minutes on average. The network adjusts mining difficulty every 2,016 blocks to maintain this pace.</div>
+        </div>
+        <div class="info-card cyan">
+          <div class="info-icon">⏱️</div>
+          <div class="info-title">~4 Year Cycle</div>
+          <div class="info-body">210,000 blocks × 10 minutes = ~1,458 days ≈ 4 years. This predictable schedule makes the halving unique among monetary events.</div>
+        </div>
+        <div class="info-card gold">
+          <div class="info-icon">📉</div>
+          <div class="info-title">Supply Shock</div>
+          <div class="info-body">After each halving the daily issuance of new BTC drops by 50%. Demand, however, does not automatically drop — creating a supply-demand imbalance.</div>
+        </div>
+        <div class="info-card green">
+          <div class="info-icon">🔒</div>
+          <div class="info-title">Coded in Stone</div>
+          <div class="info-body">No government, company, or person can change the halving schedule. It is enforced by consensus across tens of thousands of nodes worldwide.</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Section 2: History -->
+    <section class="section">
+      <div class="section-label">Halving history</div>
+      <h2>Four halvings, four cycles</h2>
+      <p>Each halving has historically preceded a new Bitcoin bull market — though timing varies and past performance does not guarantee future results.</p>
+
+      <table class="halving-table">
+        <thead>
+          <tr>
+            <th>#</th>
+            <th>Date</th>
+            <th>Block</th>
+            <th>Reward</th>
+            <th>Price at Halving</th>
+            <th>Cycle Peak</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><span class="num">I</span></td>
+            <td><span class="date">Nov 28, 2012</span></td>
+            <td>210,000</td>
+            <td><span class="reward">25 BTC</span></td>
+            <td>$12</td>
+            <td><span class="peak">$1,150 <small>(Dec 2013)</small></span></td>
+          </tr>
+          <tr>
+            <td><span class="num">II</span></td>
+            <td><span class="date">Jul 9, 2016</span></td>
+            <td>420,000</td>
+            <td><span class="reward">12.5 BTC</span></td>
+            <td>$650</td>
+            <td><span class="peak">$19,800 <small>(Dec 2017)</small></span></td>
+          </tr>
+          <tr>
+            <td><span class="num">III</span></td>
+            <td><span class="date">May 11, 2020</span></td>
+            <td>630,000</td>
+            <td><span class="reward">6.25 BTC</span></td>
+            <td>$8,600</td>
+            <td><span class="peak">$69,000 <small>(Nov 2021)</small></span></td>
+          </tr>
+          <tr class="current">
+            <td><span class="num">IV</span></td>
+            <td><span class="date">Apr 19, 2024</span></td>
+            <td>840,000</td>
+            <td><span class="reward">3.125 BTC</span></td>
+            <td>$63,700</td>
+            <td><span class="next">Cycle ongoing <span class="badge">NOW</span></span></td>
+          </tr>
+          <tr>
+            <td><span class="num">V</span></td>
+            <td><span class="date">~2028</span></td>
+            <td>1,050,000</td>
+            <td><span class="reward">1.5625 BTC</span></td>
+            <td>—</td>
+            <td>—</td>
+          </tr>
+        </tbody>
+      </table>
+    </section>
+
+    <!-- Section 3: Why it matters -->
+    <section class="section">
+      <div class="section-label">Why it matters</div>
+      <h2>Supply, demand, and cycles</h2>
+      <p>Bitcoin's total supply is <strong>capped at 21 million coins</strong>. As of 2025, over 19.8 million BTC have already been mined. The halving slows new issuance dramatically — by the year 2140, all 21 million will have been mined.</p>
+      <p>Unlike fiat currencies, which can be printed without limit, Bitcoin has a known and fixed supply schedule. This <strong>programmatic scarcity</strong> is the foundation of the "digital gold" thesis.</p>
+
+      <div class="highlight">
+        <p>After the 2024 halving, miners receive <strong>3.125 BTC per block</strong>. At $80,000 per BTC, that is roughly $450 in reward per block, or around $65,000 per day for the entire network — down from $130,000 before the halving.</p>
+      </div>
+
+      <p>This compression of miner revenue forces less efficient miners to shut down, temporarily reducing hash rate before more efficient operations take over. It also reduces sell pressure from miners who previously had to sell more BTC to cover costs.</p>
+    </section>
+
+    <!-- Section 4: About SpaceCat -->
+    <section class="section">
+      <div class="section-label">About SpaceCat</div>
+      <h2>Why we built this tracker</h2>
+      <p>SpaceCat is a <strong>real-time Bitcoin halving dashboard</strong> that shows exactly where we are in the current halving cycle. It combines live blockchain data with price history and cycle analytics in a single view.</p>
+      <p>The tracker connects directly to <strong>mempool.space</strong> for live block data and uses <strong>Binance</strong> for price history. All data is fetched client-side — no servers, no tracking, no accounts.</p>
+
+      <div class="info-grid">
+        <div class="info-card purple">
+          <div class="info-icon">⚡</div>
+          <div class="info-title">Live Blocks</div>
+          <div class="info-body">New blocks appear in real-time via WebSocket connection to mempool.space. The block counter updates the moment a block is found.</div>
+        </div>
+        <div class="info-card cyan">
+          <div class="info-icon">📈</div>
+          <div class="info-title">Price History</div>
+          <div class="info-body">BTC price chart with 1W, 3M, 6M, 1Y and 2Y timeframes, plus a Cycle III comparison overlay to spot pattern similarities.</div>
+        </div>
+        <div class="info-card gold">
+          <div class="info-icon">😨</div>
+          <div class="info-title">Fear &amp; Greed</div>
+          <div class="info-body">The Alternative.me Fear &amp; Greed Index gives a snapshot of market sentiment from extreme fear to extreme greed.</div>
+        </div>
+        <div class="info-card green">
+          <div class="info-icon">🐱</div>
+          <div class="info-title">SpaceCat</div>
+          <div class="info-body">The cat travels from the Halving IV launch pad to the moon at Block 1,050,000. Its position shows exactly how far into the cycle we are.</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- CTA -->
+    <div class="cta-section">
+      <div class="cta-cat">🐱</div>
+      <h2>Track the next halving live</h2>
+      <p>Real-time blocks, price history, countdown and cycle analytics — all in one place.</p>
+      <a class="cta-btn" href="/">
+        🚀 OPEN LIVE TRACKER
+      </a>
+    </div>
+
+  </main>
+
+  <!-- ── FOOTER ── -->
+  <footer>
+    <span>© 2025 <a href="/">SpaceCat</a> — Bitcoin Halving Tracker</span>
+    <span>Data: <a href="https://mempool.space" target="_blank" rel="noopener">mempool.space</a> · <a href="https://binance.com" target="_blank" rel="noopener">Binance</a> · <a href="https://alternative.me" target="_blank" rel="noopener">Alternative.me</a></span>
+  </footer>
+
+</body>
+</html>
