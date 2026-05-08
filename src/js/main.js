@@ -208,6 +208,96 @@ function showToast(title, body) {
 // ── MEOW SYNTHESIZER ──────────────────────────────────────────────────────────
 const MEOW_TEXTS = ['miu~', 'nyaa~', 'purr~', 'mrrr~', 'miau!', '≽^·⩊·^≼', '~nya!'];
 
+// Formanttisynteesi — jäljittelee kissan äänitorven resonansseja
+function synthMeow(ctx, t0, { vol = 0.32, dur = 0.9, baseFreq = 370, peakFreq = 680, pitch = 1 } = {}) {
+  const bf = baseFreq * pitch;
+  const pf = peakFreq  * pitch;
+
+  // Pääoskillaattori — sawtooth antaa yläsävelet kuten kissan äänihuulet
+  const osc = ctx.createOscillator();
+  osc.type = 'sawtooth';
+
+  // Sävelkorkeuskirjekuori: m(matala) → i(nousu) → a(huippu) → u/w(lasku)
+  osc.frequency.setValueAtTime(bf * 0.72, t0);
+  osc.frequency.linearRampToValueAtTime(bf,        t0 + 0.06);   // "m" → suuaukko
+  osc.frequency.linearRampToValueAtTime(pf * 0.85, t0 + 0.22);   // "i" nousu
+  osc.frequency.linearRampToValueAtTime(pf,        t0 + dur*0.4); // "a" huippu
+  osc.frequency.linearRampToValueAtTime(bf * 1.05, t0 + dur*0.7); // "u" lasku
+  osc.frequency.linearRampToValueAtTime(bf * 0.75, t0 + dur);     // "~" häivy
+
+  // Vibrato — kissan luontainen sävelvärähtely ~5.5 Hz
+  const lfo = ctx.createOscillator();
+  const lfoG = ctx.createGain();
+  lfo.frequency.value = 5.5;
+  lfoG.gain.setValueAtTime(0,          t0);
+  lfoG.gain.linearRampToValueAtTime(pf * 0.022, t0 + 0.3);
+  lfoG.gain.setValueAtTime(pf * 0.022, t0 + dur * 0.72);
+  lfoG.gain.linearRampToValueAtTime(0, t0 + dur);
+  lfo.connect(lfoG);
+  lfoG.connect(osc.frequency);
+
+  // Formantti 1 — äänitorven ensimmäinen resonanssi (~900 Hz, "a"-vokaali)
+  const f1 = ctx.createBiquadFilter();
+  f1.type = 'bandpass'; f1.frequency.value = 900; f1.Q.value = 3.5;
+
+  // Formantti 2 — ylempi resonanssi (~1800 Hz, kissamainen "iä"-väri)
+  const f2 = ctx.createBiquadFilter();
+  f2.type = 'bandpass'; f2.frequency.value = 1800; f2.Q.value = 5;
+
+  // Softclipperi — pehmentää sawtoothin terävyyttä
+  const wsh = ctx.createWaveShaper();
+  const curve = new Float32Array(256);
+  for (let i = 0; i < 256; i++) {
+    const x = (i * 2) / 255 - 1;
+    curve[i] = (Math.PI + 80) * x / (Math.PI + 80 * Math.abs(x));
+  }
+  wsh.curve = curve;
+
+  // Amplitudikirjekuori
+  const env = ctx.createGain();
+  env.gain.setValueAtTime(0,   t0);
+  env.gain.linearRampToValueAtTime(vol, t0 + 0.052);
+  env.gain.setValueAtTime(vol, t0 + dur * 0.58);
+  env.gain.exponentialRampToValueAtTime(0.001, t0 + dur + 0.06);
+
+  // Reititys: osc → wsh → f1+f2 → env → output
+  osc.connect(wsh);
+  wsh.connect(f1); wsh.connect(f2);
+  f1.connect(env); f2.connect(env);
+  env.connect(ctx.destination);
+
+  osc.start(t0); osc.stop(t0 + dur + 0.1);
+  lfo.start(t0); lfo.stop(t0 + dur + 0.1);
+}
+
+// Kissan siritysääni — "brrt!" uuden blokin löytyessä
+// Kissat tekevät tätä "chattering"-ääntä kun näkevät saaliin/jotain jännää
+function synthChirp(ctx, t0, { vol = 0.38 } = {}) {
+  // Nopeat peräkkäiset nousevat pulssit
+  [0, 0.11, 0.22].forEach((offset, i) => {
+    const t  = t0 + offset;
+    const osc = ctx.createOscillator();
+    const f   = ctx.createBiquadFilter();
+    const env = ctx.createGain();
+
+    osc.type = 'triangle';
+    osc.frequency.setValueAtTime(780 + i * 130, t);
+    osc.frequency.exponentialRampToValueAtTime(1500 + i * 100, t + 0.075);
+
+    f.type = 'bandpass'; f.frequency.value = 1300; f.Q.value = 2.5;
+
+    env.gain.setValueAtTime(0,                   t);
+    env.gain.linearRampToValueAtTime(vol - i*0.06, t + 0.012);
+    env.gain.exponentialRampToValueAtTime(0.001,  t + 0.09);
+
+    osc.connect(f); f.connect(env); env.connect(ctx.destination);
+    osc.start(t); osc.stop(t + 0.11);
+  });
+
+  // Lyhyt "miau!" perään ~0.4s jälkeen
+  synthMeow(ctx, t0 + 0.42, { vol: 0.28, dur: 0.65, baseFreq: 420, peakFreq: 780, pitch: 1 });
+}
+
 function playMeow(type = 'gentle') {
   if (!catState.meowEnabled) return;
   try {
@@ -216,37 +306,15 @@ function playMeow(type = 'gentle') {
     const ctx = new AC();
     const now = ctx.currentTime;
 
-    // voice(oscType, vol, startOffset, duration, freqArray)
-    // freqArray is evenly distributed across duration
-    const voice = (oscType, vol, t0, dur, freqs) => {
-      const osc = ctx.createOscillator();
-      const gn  = ctx.createGain();
-      osc.connect(gn); gn.connect(ctx.destination);
-      osc.type = oscType;
-      osc.frequency.setValueAtTime(freqs[0], now + t0);
-      freqs.forEach((f, i) => {
-        if (i > 0) osc.frequency.linearRampToValueAtTime(f, now + t0 + (i / (freqs.length - 1)) * dur);
-      });
-      gn.gain.setValueAtTime(0, now + t0);
-      gn.gain.linearRampToValueAtTime(vol, now + t0 + 0.055);
-      gn.gain.setValueAtTime(vol, now + t0 + dur * 0.62);
-      gn.gain.linearRampToValueAtTime(0, now + t0 + dur);
-      osc.start(now + t0);
-      osc.stop(now + t0 + dur + 0.05);
-    };
-
-    if (type === 'happy') {
-      // Single "miu~": rises to peak then falls with gentle tail
-      voice('sine',     0.28, 0,    0.72, [280, 340, 560, 700, 560, 400, 330]);
-      voice('triangle', 0.07, 0,    0.72, [420, 510, 840, 1050, 840, 600, 495]);
-    } else if (type === 'excited') {
-      // Double "miu miu!": two quick overlapping bursts
-      voice('sine', 0.3, 0,    0.48, [320, 440, 740, 580, 420]);
-      voice('sine', 0.3, 0.38, 0.48, [350, 480, 820, 640, 460]);
-      voice('triangle', 0.06, 0, 0.86, [480, 660, 1100, 870, 630]);
+    if (type === 'excited') {
+      // Uusi lohko — chirp + miau!
+      synthChirp(ctx, now, { vol: 0.38 });
+    } else if (type === 'happy') {
+      // Klikkaus — täyteläinen miau
+      synthMeow(ctx, now, { vol: 0.32, dur: 0.88, baseFreq: 380, peakFreq: 700 });
     } else {
-      // Gentle: soft single miu
-      voice('sine', 0.15, 0, 0.5, [300, 370, 430, 370, 310]);
+      // Gentle — hiljainen pehmeä miu
+      synthMeow(ctx, now, { vol: 0.18, dur: 0.65, baseFreq: 320, peakFreq: 580, pitch: 0.95 });
     }
   } catch {}
 }
