@@ -1,0 +1,13 @@
+{
+  "name": "SpaceCat — Bitcoin Halving Tracker",
+  "short_name": "SpaceCat",
+  "description": "Real-time Bitcoin halving countdown with live block data, BTC price history and cycle analytics.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#02020e",
+  "theme_color": "#02020e",
+  "orientation": "portrait-primary",
+  "icons": [
+    { "src": "/favicon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any maskable" }
+  ]
+}

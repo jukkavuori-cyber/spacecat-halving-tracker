@@ -56,6 +56,14 @@ const fetchFees   = () => apiFetch('https://mempool.space/api/v1/fees/recommende
 const fetchPrices = () => apiFetch(
   'https://api.binance.com/api/v3/klines?symbol=BTCUSDT&interval=1w&limit=104', null
 );
+// Halving III cycle (May 11 2020 = 1589155200000): 104 viikkoa = ~2 vuotta
+const fetchPrevCycle = () => apiFetch(
+  'https://api.binance.com/api/v3/klines?symbol=BTCUSDT&interval=1w&limit=104&startTime=1589155200000', null
+);
+// Fear & Greed Index — alternative.me (ilmainen, ei avain)
+const fetchFearGreed = () => apiFetch('https://api.alternative.me/fng/?limit=1', null);
+// CoinGecko global — BTC dominance
+const fetchGlobal = () => apiFetch('https://api.coingecko.com/api/v3/global', null);
 
 // ── WEBSOCKET (real-time blocks) ──────────────────────────────────────────────
 let wsInstance;
@@ -123,6 +131,39 @@ function updateStats(block) {
   el('vPct').textContent          = Math.round(pct) + '%';
   positionCat(progress);
   startCountdown(remaining);
+  checkMilestones(block);
+}
+
+// ── MILESTONES ────────────────────────────────────────────────────────────────
+const MILESTONES = [900_000, 950_000, 1_000_000, 1_050_000];
+const celebratedMs = new Set(
+  JSON.parse(localStorage.getItem('spacecat_milestones') || '[]')
+);
+
+const MS_DATA = {
+  900_000:   { icon: '🎯', msg: 'Three-quarters of the journey done!\nOnly 150,000 blocks to the next halving.' },
+  950_000:   { icon: '🔥', msg: 'Just 100,000 blocks left!\nThe halving is getting close.' },
+  1_000_000: { icon: '🌙', msg: 'ONE MILLION BLOCKS MINED!\nBitcoin\'s most iconic milestone.' },
+  1_050_000: { icon: '🎆', msg: 'BITCOIN HALVING V!\nBlock reward halved to 1.5625 BTC.' },
+};
+
+function checkMilestones(block) {
+  MILESTONES.forEach(m => {
+    if (block >= m && !celebratedMs.has(m)) {
+      celebratedMs.add(m);
+      localStorage.setItem('spacecat_milestones', JSON.stringify([...celebratedMs]));
+      showMilestoneCelebration(m);
+    }
+  });
+}
+
+function showMilestoneCelebration(block) {
+  const d = MS_DATA[block] || { icon: '🚀', msg: 'Milestone reached!' };
+  el('msIcon').textContent  = d.icon;
+  el('msBlock').textContent = 'Block ' + fmt(block);
+  el('msMsg').textContent   = d.msg;
+  el('milestoneOverlay').classList.add('show');
+  popMeow('excited');
 }
 
 function positionCat(progress) {
@@ -369,12 +410,39 @@ window.toggleMeow = btn => {
 
 window.testMeow = () => popMeow('happy');
 
+// ── FEAR & GREED + SATS ───────────────────────────────────────────────────────
+function updateFearGreed(data) {
+  const fgEl = el('rFearGreed');
+  if (!fgEl || !data?.data?.[0]) return;
+  const v     = parseInt(data.data[0].value);
+  const label = data.data[0].value_classification;
+  const cls   = v < 25 ? 'c-red' : v < 45 ? '' : v < 55 ? '' : v < 75 ? 'c-green' : 'c-green';
+  const emoji = v < 25 ? '😱' : v < 45 ? '😟' : v < 55 ? '😐' : v < 75 ? '🙂' : '🤑';
+  fgEl.textContent = `${v} · ${label}`;
+  fgEl.className   = 'rv ' + cls;
+  const labelEl = fgEl.closest('.ritem')?.querySelector('.rl');
+  if (labelEl) labelEl.textContent = emoji + ' Fear & Greed';
+}
+
+function updateSats(price) {
+  const sEl = el('rSats');
+  if (!sEl || !price) return;
+  sEl.textContent = fmt(Math.round(1e8 / price)) + ' sat';
+}
+
+function updateDominance(data) {
+  const domEl = el('mktDom');
+  if (!domEl || !data?.data?.market_cap_percentage?.btc) return;
+  domEl.textContent = data.data.market_cap_percentage.btc.toFixed(1) + '%';
+}
+
 // ── CHART ─────────────────────────────────────────────────────────────────────
 const FB_LABELS = ['Apr\'24','May\'24','Jun\'24','Jul\'24','Aug\'24','Sep\'24','Oct\'24','Nov\'24','Dec\'24','Jan\'25','Feb\'25','Mar\'25','Apr\'25'];
 const FB_DATA   = [63700,61500,67200,66000,59500,62300,72000,96400,101200,108786,97000,82500,94280];
 // Viikkodata: 1M≈5vk, 3M≈13vk, 6M≈26vk, 1Y≈52vk, 2Y=104vk
 const RANGES    = { '1M': 5, '3M': 13, '6M': 26, '1Y': 52, '2Y': 104 };
 let btcChart, chartLabels = FB_LABELS, chartData = FB_DATA, activeRange = '1Y';
+let prevCycleKlines = null; // Halving III cycle data
 
 function initChart(prices) {
   // Binance klines: [openTime, open, high, low, close, ...]
@@ -419,7 +487,9 @@ function initChart(prices) {
           titleColor: 'oklch(0.72 0.28 285)', bodyColor: 'oklch(0.93 0.02 260)', padding: 10,
           titleFont: { family: "'Orbitron',sans-serif", size: 10 },
           bodyFont:  { family: "'Space Mono',monospace", size: 11 },
-          callbacks: { label: c => '  $' + c.parsed.y.toLocaleString() }
+          callbacks: {
+            label: c => `  ${c.dataset.label || 'BTC'}: $${c.parsed.y.toLocaleString()}`
+          }
         }
       },
       scales: {
@@ -434,11 +504,55 @@ window.setRange = (btn, range) => {
   activeRange = range;
   document.querySelectorAll('.pill').forEach(p => p.classList.remove('active'));
   btn.classList.add('active');
+
+  if (range === 'CYC3') {
+    showCycleComparison();
+    return;
+  }
+  // Normaalinäkymä — poista mahdollinen cycle III -dataset
+  if (btcChart.data.datasets.length > 1) {
+    btcChart.data.datasets.splice(1);
+  }
   const n = RANGES[range] || chartLabels.length;
-  btcChart.data.labels = chartLabels.slice(-n);
+  btcChart.data.labels   = chartLabels.slice(-n);
   btcChart.data.datasets[0].data = chartData.slice(-n);
+  btcChart.data.datasets[0].label = 'Cycle IV';
   btcChart.update('active');
 };
+
+function showCycleComparison() {
+  if (!btcChart) return;
+  const curr = chartData.slice(); // kaikki viikot
+  const prev = prevCycleKlines
+    ? prevCycleKlines.map(k => Math.round(parseFloat(k[4])))
+    : [];
+  const n = Math.min(curr.length, prev.length || curr.length);
+  const weeks = Array.from({ length: n }, (_, i) => `W+${i + 1}`);
+
+  btcChart.data.labels = weeks;
+  btcChart.data.datasets[0].data  = curr.slice(0, n);
+  btcChart.data.datasets[0].label = 'Cycle IV (now)';
+
+  if (prev.length) {
+    const prevDataset = {
+      label: 'Cycle III (2020)',
+      data: prev.slice(0, n),
+      borderColor: 'oklch(0.85 0.18 85 / 0.65)',
+      borderWidth: 1.5,
+      borderDash: [5, 4],
+      backgroundColor: 'transparent',
+      fill: false, tension: 0.42,
+      pointRadius: 0, pointHoverRadius: 4,
+      pointHoverBackgroundColor: 'var(--gold)',
+    };
+    if (btcChart.data.datasets.length > 1) {
+      btcChart.data.datasets[1] = prevDataset;
+    } else {
+      btcChart.data.datasets.push(prevDataset);
+    }
+  }
+  btcChart.update('active');
+}
 
 // Päivittää kaavion viimeisen pisteen live-hinnalla
 function updateChartCurrentPrice(price) {
@@ -603,15 +717,22 @@ async function refreshMarketData() {
   const btcData = await fetchBTCPrice();
   if (btcData) {
     updateMarketStats({ bitcoin: btcData });
+    updateSats(btcData.usd);
   }
 
-  // Altcoin ticker CoinGeckosta — 5min välein riittää
-  const tickerData = await fetchMarketData();
+  // Altcoin ticker, Fear&Greed, Global market — rinnakkain 5min välein
+  const [tickerData, fgData, globalData] = await Promise.all([
+    fetchMarketData(),
+    fetchFearGreed(),
+    fetchGlobal(),
+  ]);
+
   if (tickerData) {
-    // Yhdistetään Binancen BTC-hinta CoinGeckon dataan
     if (btcData) tickerData.bitcoin = { ...tickerData.bitcoin, ...btcData };
     renderTicker(tickerData);
   }
+  updateFearGreed(fgData);
+  updateDominance(globalData);
 }
 
 // ── SHARE ─────────────────────────────────────────────────────────────────────
@@ -621,6 +742,17 @@ window.shareTracker = async () => {
     await navigator.clipboard.writeText(url);
     showToast('🔗 LINK COPIED!', `Sharing block #${fmt(state.currentBlock)}`);
   } catch { prompt('Copy this link:', url); }
+};
+
+window.tweetShare = () => {
+  const { daysLeft, progress } = halvingProgress(state.currentBlock);
+  const pct  = (progress * 100).toFixed(1);
+  const text = encodeURIComponent(
+    `⚡ ${fmt(daysLeft)} days until the next #Bitcoin halving!\n` +
+    `🚀 Block ${fmt(state.currentBlock)} — ${pct}% of the journey done\n` +
+    `🐱 Track live → spacecat.academy`
+  );
+  window.open(`https://twitter.com/intent/tweet?text=${text}`, '_blank', 'width=560,height=440,noopener');
 };
 
 // ── TWEAKS PANEL ──────────────────────────────────────────────────────────────
@@ -697,6 +829,8 @@ window.addEventListener('DOMContentLoaded', () => {
   setTimeout(() => {
     initChart(null);
     fetchPrices().then(d => { if (d) { initChart(d); updateCycleATH(d); } });
+    // Halving III vertailudata taustalla
+    fetchPrevCycle().then(d => { if (d) prevCycleKlines = d; });
   }, 150);
 
   // BTC hinta Binancesta joka 30s — ei rate-limittejä
@@ -716,6 +850,14 @@ window.addEventListener('DOMContentLoaded', () => {
   // Polling fallback
   refresh();
   setInterval(refresh, REFRESH_MS);
+
+  // Block explorer link — klikkaa blocknumeroa → mempool.space
+  const hb = el('headerBlock');
+  hb.style.cursor = 'pointer';
+  hb.title = 'Open in mempool.space ↗';
+  hb.addEventListener('click', () =>
+    window.open(`https://mempool.space/block-height/${state.currentBlock}`, '_blank', 'noopener')
+  );
 
   // Cat clickable → meow
   el('catFaceEmoji').addEventListener('click', () => popMeow('happy'));

@@ -268,7 +268,7 @@ html, body { height: 100%; overflow: hidden; background: var(--bg); color: var(-
 .chart-wrap::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 1px;
   background: linear-gradient(90deg, transparent, var(--accent-a) 40%, var(--accent-b) 60%, transparent); opacity: .42; }
 .chart-wrap canvas { width: 100% !important; height: 100% !important; }
-.brow { display: grid; grid-template-columns: repeat(3,1fr); gap: 8px; }
+.brow { display: grid; grid-template-columns: repeat(4,1fr); gap: 8px; }
 .bstat { background: oklch(.075 .04 265 / .55); border: 1px solid var(--border); padding: 9px 12px; position: relative; overflow: hidden; transition: border-color .2s; cursor: default; }
 .bstat:hover { border-color: oklch(.72 .28 285 / .38); }
 .bstat::after { content: ''; position: absolute; bottom: 0; left: 0; right: 0; height: 2px; background: linear-gradient(90deg, var(--accent-a), var(--accent-b)); transform: scaleX(0); transform-origin: left; transition: transform .35s; }
@@ -407,6 +407,53 @@ html, body { height: 100%; overflow: hidden; background: var(--bg); color: var(-
   cursor: pointer; transition: all .18s; }
 .tip-amt:hover { border-color: var(--gold); color: var(--gold); box-shadow: 0 0 8px oklch(.85 .18 85 / .2); }
 
+/* ── TWEET BUTTON ────────────────────────────────── */
+.tweet-btn { border-color: oklch(0.65 0.18 260 / 0.4) !important; }
+.tweet-btn:hover { border-color: #1d9bf0 !important; color: #1d9bf0 !important; box-shadow: 0 0 10px rgba(29,155,240,.25) !important; }
+
+/* ── CYC III PILL ────────────────────────────────── */
+.cyc-pill { border-color: oklch(0.85 0.18 85 / 0.35) !important; color: oklch(0.85 0.18 85 / 0.7) !important; }
+.cyc-pill.active { background: oklch(0.85 0.18 85 / 0.12) !important; border-color: var(--gold) !important; color: var(--gold) !important; }
+
+/* ── MILESTONE OVERLAY ───────────────────────────── */
+#milestoneOverlay {
+  position: fixed; inset: 0; z-index: 9000;
+  display: flex; align-items: center; justify-content: center;
+  pointer-events: none; opacity: 0; transition: opacity .4s;
+}
+#milestoneOverlay.show { opacity: 1; pointer-events: auto; }
+.ms-bg {
+  position: absolute; inset: 0;
+  background: oklch(.04 .05 285 / .82); backdrop-filter: blur(6px);
+}
+.ms-content {
+  position: relative; z-index: 1;
+  display: flex; flex-direction: column; align-items: center; gap: 14px;
+  background: oklch(.07 .06 285 / .95);
+  border: 1px solid oklch(.72 .28 285 / .35);
+  box-shadow: 0 0 60px oklch(.72 .28 285 / .25), 0 0 120px oklch(.72 .28 285 / .1);
+  padding: 44px 52px; max-width: 460px; text-align: center;
+  animation: ms-pop .45s cubic-bezier(.18,.89,.32,1.28);
+}
+@keyframes ms-pop {
+  from { transform: scale(.7); opacity: 0; }
+  to   { transform: scale(1);  opacity: 1; }
+}
+.ms-icon { font-size: 64px; line-height: 1; filter: drop-shadow(0 0 18px var(--gold)); }
+.ms-block {
+  font-family: var(--fh); font-size: 1.15rem; font-weight: 900;
+  letter-spacing: .1em;
+  background: linear-gradient(100deg, var(--accent-a), var(--accent-b));
+  -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
+}
+.ms-msg { font-size: .72rem; color: var(--text-dim); letter-spacing: .06em; line-height: 1.5; }
+.ms-dismiss {
+  margin-top: 6px; font-family: var(--fh); font-size: .5rem; letter-spacing: .14em;
+  color: var(--text-dim); border: 1px solid var(--border); padding: 7px 20px;
+  background: none; cursor: pointer; transition: all .18s;
+}
+.ms-dismiss:hover { border-color: var(--accent-a); color: var(--accent-a); }
+
 /* ── MOBILE ───────────────────────────────────────── */
 .mobile-tabs { display: none; }
 @media (max-width: 768px) {
@@ -447,7 +494,7 @@ html, body { height: 100%; overflow: hidden; background: var(--bg); color: var(-
   .vprog { left: 4px; }
   .track-col { width: 105px; flex-shrink: 0; }
   .brow { grid-template-columns: 1fr 1fr; }
-  .brow .bstat:last-child { grid-column: span 2; }
+  .brow .bstat:last-child { grid-column: span 1; }
   .hh-cards { grid-template-columns: 1fr 1fr; }
   .mobile-tabs { display: flex; position: fixed; bottom: 0; left: 0; right: 0; z-index: 100;
     background: oklch(.07 .04 265 / .97); border-top: 1px solid var(--border); backdrop-filter: blur(12px); }

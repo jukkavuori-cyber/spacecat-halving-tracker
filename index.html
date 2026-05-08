@@ -55,6 +55,12 @@
   }
   </script>
 
+  <!-- PWA -->
+  <link rel="manifest" href="/manifest.json" />
+  <meta name="mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-title" content="SpaceCat" />
+
   <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;600;700;900&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet" />
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.2/dist/chart.umd.min.js"></script>
   <link rel="stylesheet" href="src/css/styles.css" />
@@ -81,6 +87,7 @@
       <div class="hblock" id="headerBlock">#940,000</div>
       <div id="liveIndicator"><div class="ldot"></div>LIVE</div>
       <button class="share-btn" onclick="shareTracker()">🔗 SHARE</button>
+      <button class="share-btn tweet-btn" onclick="tweetShare()">𝕏 TWEET</button>
     </div>
   </header>
 
@@ -91,6 +98,8 @@
     <div class="ritem"><div class="rl">₿ BTC Mined</div><div class="rv" id="rMined">19.69M BTC</div></div>
     <div class="ritem"><div class="rl">💸 Avg Fee</div><div class="rv" id="rFee">25 sat/vB</div></div>
     <div class="ritem"><div class="rl">🔄 Next Diff Adj</div><div class="rv c-green" id="rDiff">+2.3% · 1,204 blks</div></div>
+    <div class="ritem"><div class="rl">😱 Fear &amp; Greed</div><div class="rv" id="rFearGreed">— · —</div></div>
+    <div class="ritem"><div class="rl">₿ Sats per $1</div><div class="rv c-go" id="rSats">—</div></div>
   </div>
 
   <!-- ── LEFT: JOURNEY ── -->
@@ -164,6 +173,7 @@
         <button class="pill" onclick="setRange(this,'6M')">6M</button>
         <button class="pill active" onclick="setRange(this,'1Y')">1Y</button>
         <button class="pill" onclick="setRange(this,'2Y')">2Y</button>
+        <button class="pill cyc-pill" onclick="setRange(this,'CYC3')" title="Compare with Halving III cycle">CYC III</button>
       </div>
     </div>
     <div class="chart-wrap"><canvas id="priceChart"></canvas></div>
@@ -171,6 +181,7 @@
       <div class="bstat"><div class="bl">Current Price</div><div class="bv c-b" id="mktPrice">$94,280</div><div class="bc up" id="mktPriceChange">▲ +2.4% today</div></div>
       <div class="bstat"><div class="bl">Cycle ATH</div><div class="bv c-go" id="mktATH">$108,786</div><div class="bc" style="color:var(--text-dim)" id="mktATHDate">Jan 2025</div></div>
       <div class="bstat"><div class="bl">Market Cap</div><div class="bv c-g" id="mktCap">$1.87T</div><div class="bc up" id="mktCapChange">▲ +1.8% 24h</div></div>
+      <div class="bstat"><div class="bl">BTC Dominance</div><div class="bv c-go" id="mktDom">—</div><div class="bc" style="color:var(--text-dim)">of crypto market</div></div>
     </div>
 
     <!-- Halving History -->
@@ -340,6 +351,17 @@
       <button class="tw-btn full" onclick="testMeow()">🐱 Test Miu!</button>
       <button class="tw-btn full" onclick="window.state_demo && window.state_demo()">⛏ Fire Block Event</button>
     </div>
+  </div>
+</div>
+
+<!-- ── MILESTONE OVERLAY ── -->
+<div id="milestoneOverlay">
+  <div class="ms-bg"></div>
+  <div class="ms-content">
+    <div class="ms-icon" id="msIcon">🎯</div>
+    <div class="ms-block" id="msBlock">Block 900,000</div>
+    <div class="ms-msg" id="msMsg">Milestone reached!</div>
+    <button class="ms-dismiss" onclick="document.getElementById('milestoneOverlay').classList.remove('show')">DISMISS ✕</button>
   </div>
 </div>
 
