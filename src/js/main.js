@@ -436,7 +436,7 @@ async function fetchMarketData() {
   const ids = TICKER_COINS.map(c => c.id).join(',');
   return apiFetch(
     `https://api.coingecko.com/api/v3/simple/price?ids=${ids}&vs_currencies=usd&include_24hr_change=true&include_market_cap=true`,
-    DEMO_MARKET
+    null  // null = API epäonnistui, älä ylikirjoita arvoja
   );
 }
 
@@ -514,6 +514,7 @@ function updateCycleATH(prices) {
 
 async function refreshMarketData() {
   const data = await fetchMarketData();
+  if (!data) return; // API rate-limited tai virhe — pidetään viimeiset oikeat arvot
   renderTicker(data);
   updateMarketStats(data);
 }
@@ -563,7 +564,7 @@ async function refresh() {
 // ── INIT ──────────────────────────────────────────────────────────────────────
 window.addEventListener('DOMContentLoaded', () => {
   initStarfield();
-  renderTicker(DEMO_MARKET); // näytetään demo heti, korvataan reaaliajassa
+  renderTicker(DEMO_MARKET); // placeholder ennen ensimmäistä API-vastausta
 
   requestAnimationFrame(() => requestAnimationFrame(() => {
     updateStats(state.currentBlock);
