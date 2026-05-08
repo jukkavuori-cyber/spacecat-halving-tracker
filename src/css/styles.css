@@ -111,8 +111,7 @@ html, body { height: 100%; overflow: hidden; background: var(--bg); color: var(-
   content: ''; position: absolute; right: 0; top: 8%; height: 84%;
   width: 1px; background: linear-gradient(to bottom, transparent, var(--border) 25%, var(--border) 75%, transparent);
 }
-.vprog { position: absolute; left: 16px; top: 50%; transform: translateY(-50%);
-  width: 4px; height: 62%; background: oklch(.15 .06 285 / .55); border-radius: 2px; border: 1px solid var(--border); }
+.vprog { display: none; }
 #vFill { position: absolute; bottom: 0; width: 100%; border-radius: 2px;
   background: linear-gradient(to top, var(--green), var(--accent-b), var(--accent-a));
   box-shadow: 0 0 8px var(--accent-a), 0 0 16px oklch(.72 .28 285 / .25);
