@@ -411,22 +411,39 @@ html, body { height: 100%; overflow: hidden; background: var(--bg); color: var(-
 .mobile-tabs { display: none; }
 @media (max-width: 768px) {
   html, body { overflow: auto; }
-  .app { grid-template-columns: 1fr; grid-template-rows: auto auto 1fr auto auto; height: auto; min-height: 100vh; padding: 0 14px; padding-bottom: 64px; }
+  .app {
+    grid-template-columns: minmax(0, 1fr);
+    grid-template-rows: auto auto 1fr auto auto;
+    height: auto; min-height: 100svh;
+    padding: 0 12px; padding-bottom: 64px;
+  }
   .journey-panel::after { display: none; }
   .journey-panel {
-    padding: 10px 0 0;
-    height: calc(100svh - 130px); /* header + ribbon + bottom nav */
+    /* Tarkka korkeus: 100svh miinus header(63) + ribbon(83) + bottomnav(61) + margin(5) */
+    height: calc(100svh - 212px);
     min-height: 0;
-    align-items: flex-start;
+    padding: 8px 0;
+    /* flex-direction: row (oletus) — track ja stats vierekkäin */
+    align-items: center;
     justify-content: center;
-    flex-direction: column;
-    gap: 10px;
+    overflow: visible;
   }
   .chart-panel { padding: 14px 0; }
-  .stats-strip { position: static; transform: none; flex-direction: row; flex-wrap: wrap; gap: 6px; width: 100%; pointer-events: auto; }
-  .scard, .cd-card { width: calc(50% - 3px); }
-  .vprog { left: 4px; }
-  .track-col { width: 145px; flex-shrink: 0; }
+
+  /* Stats pystyyn oikealle kuten desktopilla, ei enää neliöön */
+  .stats-strip {
+    position: absolute;
+    right: 2px;        /* pieni marginaali reunaan */
+    top: 50%;
+    transform: translateY(-50%);
+    flex-direction: column;
+    gap: 6px;
+    pointer-events: auto;
+  }
+  .scard, .cd-card { width: 132px; }
+
+  .vprog { left: 2px; }
+  .track-col { width: 128px; flex-shrink: 0; }
   .brow { grid-template-columns: 1fr 1fr; }
   .brow .bstat:last-child { grid-column: span 2; }
   .hh-cards { grid-template-columns: 1fr 1fr; }
