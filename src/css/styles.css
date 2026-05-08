@@ -510,3 +510,13 @@ html, body { height: 100%; overflow: hidden; background: var(--bg); color: var(-
   .brow .bstat:last-child { grid-column: span 1; }
   .hh-cards { grid-template-columns: 1fr 1fr; }
 }
+
+/* ── DESKTOP: bigger stats cards ────────────────── */
+@media (min-width: 769px) {
+  .scard, .cd-card { width: 210px; padding: 10px 14px 10px 18px; }
+  .sl, .cd-label   { font-size: .54rem; }
+  .sv               { font-size: 1.08rem; }
+  .cd-num           { font-size: 1.08rem; }
+  .cd-unit          { font-size: .44rem; }
+  .cd-sep           { font-size: .72rem; }
+}
