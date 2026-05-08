@@ -468,33 +468,31 @@ html, body { height: 100%; overflow: hidden; background: var(--bg); color: var(-
   .journey-panel {
     height: calc(100svh - 212px);
     min-height: 0;
-    /* kissa + kortit oikealle: flex-end työntää koko ryhmän oikeaan reunaan */
-    padding: 8px 4px 8px 14px;
+    /* kissa vasemmalle, stats täyttää loput */
+    padding: 8px 6px 8px 20px;
     align-items: center;
-    justify-content: flex-end;
+    justify-content: flex-start;
     gap: 10px;
     overflow: visible;
   }
   .chart-panel { padding: 14px 0; }
 
-  /* Stats — normaali flow, kiinteä leveys oikeassa reunassa */
+  /* Stats — normaali flow, oikeaan reunaan */
   .stats-strip {
     position: static;
     transform: none;
     flex-direction: column;
     gap: 5px;
-    width: 182px;
+    width: 175px;
     flex-shrink: 0;
-    margin-left: 0;
+    margin-left: auto;
     pointer-events: auto;
     align-self: center;
   }
   .scard, .cd-card { width: 100%; }
-  /* varmistetaan että countdown-kortti on tarpeeksi korkea */
-  .cd-card { min-height: 64px; }
 
   .vprog { left: 4px; }
-  .track-col { width: 92px; flex-shrink: 0; }
+  .track-col { width: 105px; flex-shrink: 0; }
   .brow { grid-template-columns: 1fr 1fr; }
   .brow .bstat:last-child { grid-column: span 1; }
   .hh-cards { grid-template-columns: 1fr 1fr; }
@@ -511,6 +509,7 @@ html, body { height: 100%; overflow: hidden; background: var(--bg); color: var(-
   #tipPanel { bottom: 122px; left: 10px; width: 224px; }
 }
 @media (max-width: 480px) {
+  .track-col { width: 115px; }
   .brow { grid-template-columns: 1fr; }
   .brow .bstat:last-child { grid-column: span 1; }
   .hh-cards { grid-template-columns: 1fr 1fr; }
