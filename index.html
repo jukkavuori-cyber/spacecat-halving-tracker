@@ -1,0 +1,271 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>SpaceCat — Bitcoin Halving Tracker</title>
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;600;700;900&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet" />
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.2/dist/chart.umd.min.js"></script>
+  <link rel="stylesheet" href="src/css/styles.css" />
+</head>
+<body>
+
+<canvas id="starfield"></canvas>
+<div class="bg-mesh"></div>
+<div class="scanlines"></div>
+
+<div class="app">
+
+  <!-- ── HEADER ── -->
+  <header class="header">
+    <div class="logo">
+      <div class="logo-icon">🐱</div>
+      <div>
+        <div class="logo-text">SPACECAT</div>
+        <div class="logo-sub">Bitcoin Halving Tracker</div>
+      </div>
+    </div>
+    <div class="header-r">
+      <span class="ws-tag" id="wsTag">WS○</span>
+      <div class="hblock" id="headerBlock">#940,000</div>
+      <div id="liveIndicator"><div class="ldot"></div>LIVE</div>
+      <button class="share-btn" onclick="shareTracker()">🔗 SHARE</button>
+    </div>
+  </header>
+
+  <!-- ── RIBBON ── -->
+  <div class="ribbon">
+    <div class="ritem"><div class="rl">⚡ Hashrate</div><div class="rv" id="rHashrate">743 EH/s</div></div>
+    <div class="ritem"><div class="rl">🪙 Block Reward</div><div class="rv" id="rReward">3.125 BTC</div></div>
+    <div class="ritem"><div class="rl">₿ BTC Mined</div><div class="rv" id="rMined">19.69M BTC</div></div>
+    <div class="ritem"><div class="rl">💸 Avg Fee</div><div class="rv" id="rFee">25 sat/vB</div></div>
+    <div class="ritem"><div class="rl">🔄 Next Diff Adj</div><div class="rv c-green" id="rDiff">+2.3% · 1,204 blks</div></div>
+  </div>
+
+  <!-- ── LEFT: JOURNEY ── -->
+  <section class="journey-panel" id="journeyPanel">
+
+    <div class="vprog"><div id="vFill"></div><div id="vPct">0%</div></div>
+
+    <div class="track-col" id="trackCol">
+      <div class="moon-wrap">
+        <div class="moon">🌕</div>
+        <div class="moon-tag">THE MOON</div>
+        <div class="moon-blk">BLOCK 1,050,000</div>
+      </div>
+      <div class="track-line"><div class="track-scan"></div></div>
+
+      <!-- SpaceCat -->
+      <div class="cat-wrapper" id="catWrapper">
+        <div id="meowBubble" class="meow-bubble">miu~</div>
+        <div id="catInner">
+          <div class="helmet" id="spacecatChar" title="Click me! 🐾">
+            <span id="catFaceEmoji">🐱</span>
+            <span class="ear-r"></span>
+          </div>
+          <div class="thruster">
+            <div class="flame f1"></div>
+            <div class="flame f2"></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="launchpad">
+        <div class="lpad-glow"></div>
+        <div class="lpad-lbl">HALVING IV LAUNCH PAD</div>
+        <div class="lpad-blk">BLOCK 840,000 · APR 2024</div>
+      </div>
+    </div>
+
+    <!-- Stats strip -->
+    <div class="stats-strip">
+      <div class="scard"><div class="sl">Current Block</div><div class="sv c-a" id="statBlock">940,000</div></div>
+      <div class="scard"><div class="sl">Progress</div><div class="sv c-g" id="statPct">47.62%</div></div>
+      <div class="scard"><div class="sl">Blocks to Moon</div><div class="sv c-go" id="statRemaining">110,000</div></div>
+      <div class="scard"><div class="sl">Est. Days Left</div><div class="sv c-b" id="statDays">764</div></div>
+      <div class="cd-card">
+        <div class="cd-label">🚀 Next Halving</div>
+        <div class="cd-digits">
+          <div><span class="cd-num" id="cdD">764</span><span class="cd-unit">days</span></div>
+          <span class="cd-sep">:</span>
+          <div><span class="cd-num" id="cdH">12</span><span class="cd-unit">hrs</span></div>
+          <span class="cd-sep">:</span>
+          <div><span class="cd-num" id="cdM">34</span><span class="cd-unit">min</span></div>
+          <span class="cd-sep">:</span>
+          <div><span class="cd-num" id="cdS">00</span><span class="cd-unit">sec</span></div>
+        </div>
+      </div>
+    </div>
+
+  </section>
+
+  <!-- ── RIGHT: CHART ── -->
+  <section class="chart-panel" id="chartPanel">
+    <div class="chart-topbar">
+      <div>
+        <div class="chart-plabel">Market Intelligence</div>
+        <div class="chart-headline">BTC Price History</div>
+        <div class="chart-sub">Post-halving cycle · Apr 2024 → Present</div>
+      </div>
+      <div class="range-pills">
+        <button class="pill active" onclick="setRange(this,'1M')">1M</button>
+        <button class="pill" onclick="setRange(this,'3M')">3M</button>
+        <button class="pill" onclick="setRange(this,'6M')">6M</button>
+        <button class="pill" onclick="setRange(this,'1Y')">1Y</button>
+      </div>
+    </div>
+    <div class="chart-wrap"><canvas id="priceChart"></canvas></div>
+    <div class="brow">
+      <div class="bstat"><div class="bl">Current Price</div><div class="bv c-b">$94,280</div><div class="bc up">▲ +2.4% today</div></div>
+      <div class="bstat"><div class="bl">Cycle ATH</div><div class="bv c-go">$108,786</div><div class="bc" style="color:var(--text-dim)">Jan 2025</div></div>
+      <div class="bstat"><div class="bl">Market Cap</div><div class="bv c-g">$1.87T</div><div class="bc up">▲ +1.8% 24h</div></div>
+    </div>
+
+    <!-- Halving History -->
+    <div class="hh-wrap">
+      <div class="hh-title">Halving History</div>
+      <div class="hh-cards">
+        <div class="hh-card">
+          <div class="hh-num">HALVING I</div>
+          <div class="hh-date">Nov 28, 2012</div>
+          <div class="hh-blk">Block 210,000 · 25 BTC reward</div>
+          <div class="hh-prices">
+            <span class="hh-at">$12</span>
+            <span class="hh-peak up">→ $1,150 peak</span>
+          </div>
+        </div>
+        <div class="hh-card">
+          <div class="hh-num">HALVING II</div>
+          <div class="hh-date">Jul 9, 2016</div>
+          <div class="hh-blk">Block 420,000 · 12.5 BTC reward</div>
+          <div class="hh-prices">
+            <span class="hh-at">$650</span>
+            <span class="hh-peak up">→ $19,800 peak</span>
+          </div>
+        </div>
+        <div class="hh-card">
+          <div class="hh-num">HALVING III</div>
+          <div class="hh-date">May 11, 2020</div>
+          <div class="hh-blk">Block 630,000 · 6.25 BTC reward</div>
+          <div class="hh-prices">
+            <span class="hh-at">$8,600</span>
+            <span class="hh-peak up">→ $69,000 peak</span>
+          </div>
+        </div>
+        <div class="hh-card current">
+          <div class="hh-num" style="color:var(--gold)">HALVING IV ◀ NOW</div>
+          <div class="hh-date">Apr 19, 2024</div>
+          <div class="hh-blk">Block 840,000 · 3.125 BTC reward</div>
+          <div class="hh-prices">
+            <span class="hh-at" style="color:var(--gold)">$63,700</span>
+            <span class="hh-peak" style="color:var(--accent-a)">→ cycle ongoing</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </section>
+
+  <!-- ── TICKER ── -->
+  <div class="ticker"><div id="tickerInner"></div></div>
+
+  <!-- ── MOBILE TABS ── -->
+  <nav class="mobile-tabs">
+    <button class="mtab active" data-tab="journey" onclick="setTab('journey')">
+      <span class="mtab-icon">🐱</span>Journey
+    </button>
+    <button class="mtab" data-tab="chart" onclick="setTab('chart')">
+      <span class="mtab-icon">📊</span>Chart
+    </button>
+  </nav>
+
+</div><!-- /.app -->
+
+<!-- ── TOAST ── -->
+<div id="toast"><div id="tTitle"></div><div id="tBody"></div></div>
+
+<!-- ── TWEAKS BUTTON ── -->
+<button id="tweaksBtn" onclick="toggleTweaks()" title="Customize SpaceCat">✦</button>
+
+<!-- ── TWEAKS PANEL ── -->
+<div id="tweaksPanel">
+  <div class="tw-header">
+    <span class="tw-title">✦ CUSTOMIZE SPACECAT</span>
+    <button class="tw-close" onclick="toggleTweaks()">✕</button>
+  </div>
+
+  <!-- Color theme -->
+  <div class="tw-section">
+    <div class="tw-label">Color Theme</div>
+    <div class="tw-row">
+      <button class="tw-btn theme-btn active" data-theme="cosmic" onclick="setTheme('cosmic')">Cosmic</button>
+      <button class="tw-btn theme-btn" data-theme="matrix" onclick="setTheme('matrix')">Matrix</button>
+      <button class="tw-btn theme-btn" data-theme="solar" onclick="setTheme('solar')">Solar</button>
+    </div>
+  </div>
+
+  <!-- Cat face -->
+  <div class="tw-section">
+    <div class="tw-label">Cat Face</div>
+    <div class="tw-row">
+      <button class="face-btn active" data-face="🐱" onclick="setCatFace('🐱')">🐱</button>
+      <button class="face-btn" data-face="😸" onclick="setCatFace('😸')">😸</button>
+      <button class="face-btn" data-face="😼" onclick="setCatFace('😼')">😼</button>
+      <button class="face-btn" data-face="🙀" onclick="setCatFace('🙀')">🙀</button>
+      <button class="face-btn" data-face="😺" onclick="setCatFace('😺')">😺</button>
+      <button class="face-btn" data-face="🐈" onclick="setCatFace('🐈')">🐈</button>
+    </div>
+  </div>
+
+  <!-- Helmet color -->
+  <div class="tw-section">
+    <div class="tw-label">Helmet Color</div>
+    <div class="swatch-row">
+      <div class="swatch-wrap">
+        <div class="swatch active hcolor-btn" data-color="cyan"    onclick="setHelmetColor('cyan')"    style="background:oklch(0.82 0.22 195)"></div>
+        <span class="swatch-label">Cyan</span>
+      </div>
+      <div class="swatch-wrap">
+        <div class="swatch hcolor-btn" data-color="pink"    onclick="setHelmetColor('pink')"    style="background:oklch(0.75 0.28 340)"></div>
+        <span class="swatch-label">Pink</span>
+      </div>
+      <div class="swatch-wrap">
+        <div class="swatch hcolor-btn" data-color="gold"    onclick="setHelmetColor('gold')"    style="background:oklch(0.85 0.18 85)"></div>
+        <span class="swatch-label">Gold</span>
+      </div>
+      <div class="swatch-wrap">
+        <div class="swatch hcolor-btn" data-color="emerald" onclick="setHelmetColor('emerald')" style="background:oklch(0.82 0.28 142)"></div>
+        <span class="swatch-label">Emerald</span>
+      </div>
+      <div class="swatch-wrap">
+        <div class="swatch hcolor-btn" data-color="red"     onclick="setHelmetColor('red')"     style="background:oklch(0.72 0.25 25)"></div>
+        <span class="swatch-label">Red</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Rocket style -->
+  <div class="tw-section">
+    <div class="tw-label">Rocket Style</div>
+    <div class="tw-row">
+      <button class="tw-btn rocket-btn active" data-style="standard"   onclick="setRocketStyle('standard')">Standard</button>
+      <button class="tw-btn rocket-btn"        data-style="plasma"     onclick="setRocketStyle('plasma')">Plasma</button>
+      <button class="tw-btn rocket-btn"        data-style="superburn"  onclick="setRocketStyle('superburn')">Superburn</button>
+      <button class="tw-btn rocket-btn"        data-style="quantum"    onclick="setRocketStyle('quantum')">Quantum ✨</button>
+    </div>
+  </div>
+
+  <!-- Meow & Demo -->
+  <div class="tw-section">
+    <div class="tw-label">Sounds & Debug</div>
+    <div class="tw-row" style="flex-direction:column;gap:5px;">
+      <button class="tw-btn full active" id="meowToggleBtn" onclick="toggleMeow(this)">🔊 Meow: ON</button>
+      <button class="tw-btn full" onclick="testMeow()">🐱 Test Miu!</button>
+      <button class="tw-btn full" onclick="window.state_demo && window.state_demo()">⛏ Fire Block Event</button>
+    </div>
+  </div>
+</div>
+
+<script src="src/js/main.js"></script>
+</body>
+</html>
