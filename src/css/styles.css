@@ -430,14 +430,15 @@ html, body { height: 100%; overflow: hidden; background: var(--bg); color: var(-
   }
   .chart-panel { padding: 14px 0; }
 
-  /* Stats — normaali flow, täyttää loput leveyden */
+  /* Stats — normaali flow, oikeaan reunaan */
   .stats-strip {
     position: static;
     transform: none;
     flex-direction: column;
     gap: 5px;
-    flex: 1;
-    min-width: 0;
+    width: 175px;
+    flex-shrink: 0;
+    margin-left: auto;
     pointer-events: auto;
     align-self: center;
   }
