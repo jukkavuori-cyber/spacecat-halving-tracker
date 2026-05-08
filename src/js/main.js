@@ -603,7 +603,15 @@ window.addEventListener('DOMContentLoaded', () => {
     fetchPrices().then(d => { if (d) { initChart(d); updateCycleATH(d); } });
   }, 150);
 
-  // BTC hinta Binancesta joka 5min, altcoin ticker CoinGeckosta samassa
+  // BTC hinta Binancesta joka 30s — ei rate-limittejä
+  async function refreshBTC() {
+    const btcData = await fetchBTCPrice();
+    if (btcData) updateMarketStats({ bitcoin: btcData });
+  }
+  refreshBTC();
+  setInterval(refreshBTC, 30_000);
+
+  // Altcoin ticker CoinGeckosta joka 5min
   refreshMarketData();
   setInterval(refreshMarketData, 5 * 60_000);
 
