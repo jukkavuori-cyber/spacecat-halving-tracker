@@ -52,8 +52,9 @@ const fetchDiff   = () => apiFetch('https://mempool.space/api/v1/difficulty-adju
   currentDifficulty: DEMO.difficulty, difficultyChange: DEMO.diffChange, remainingBlocks: DEMO.diffBlocks,
 });
 const fetchFees   = () => apiFetch('https://mempool.space/api/v1/fees/recommended', { halfHourFee: DEMO.fee });
+// Binance weekly klines — 2v historiaa, oikeat huippu/sulkemishinnat, ei rate-limittejä
 const fetchPrices = () => apiFetch(
-  'https://api.coingecko.com/api/v3/coins/bitcoin/market_chart?vs_currency=usd&days=730&interval=monthly', null
+  'https://api.binance.com/api/v3/klines?symbol=BTCUSDT&interval=1w&limit=104', null
 );
 
 // ── WEBSOCKET (real-time blocks) ──────────────────────────────────────────────
@@ -303,17 +304,20 @@ window.testMeow = () => popMeow('happy');
 // ── CHART ─────────────────────────────────────────────────────────────────────
 const FB_LABELS = ['Apr\'24','May\'24','Jun\'24','Jul\'24','Aug\'24','Sep\'24','Oct\'24','Nov\'24','Dec\'24','Jan\'25','Feb\'25','Mar\'25','Apr\'25'];
 const FB_DATA   = [63700,61500,67200,66000,59500,62300,72000,96400,101200,108786,97000,82500,94280];
-const RANGES    = { '1M': 2, '3M': 4, '6M': 7, '1Y': 13, '2Y': 25 };
+// Viikkodata: 1M≈5vk, 3M≈13vk, 6M≈26vk, 1Y≈52vk, 2Y=104vk
+const RANGES    = { '1M': 5, '3M': 13, '6M': 26, '1Y': 52, '2Y': 104 };
 let btcChart, chartLabels = FB_LABELS, chartData = FB_DATA, activeRange = '1Y';
 
 function initChart(prices) {
-  if (prices?.prices?.length > 0) {
-    chartLabels = prices.prices.map(([ts]) =>
-      new Date(ts).toLocaleDateString('en-US', { month: 'short', year: '2-digit' }));
-    chartData = prices.prices.map(([, p]) => Math.round(p));
+  // Binance klines: [openTime, open, high, low, close, ...]
+  if (Array.isArray(prices) && prices.length > 0) {
+    chartLabels = prices.map(k =>
+      new Date(k[0]).toLocaleDateString('en-US', { month: 'short', year: '2-digit' }));
+    chartData = prices.map(k => Math.round(parseFloat(k[4]))); // weekly close
     if (btcChart) {
-      btcChart.data.labels = chartLabels;
-      btcChart.data.datasets[0].data = chartData;
+      const n = RANGES[activeRange] || chartData.length;
+      btcChart.data.labels = chartLabels.slice(-n);
+      btcChart.data.datasets[0].data = chartData.slice(-n);
       btcChart.update('active');
       return;
     }
@@ -511,13 +515,15 @@ function updateMarketStats(data) {
 }
 
 function updateCycleATH(prices) {
-  if (!prices?.prices?.length) return;
-  const halvingTs = new Date('2024-04-20').getTime();
-  const postHalving = prices.prices.filter(([ts]) => ts >= halvingTs);
+  // Binance klines: [openTime, open, HIGH, low, close, ...]
+  if (!Array.isArray(prices) || !prices.length) return;
+  const halvingTs   = new Date('2024-04-20').getTime();
+  const postHalving = prices.filter(k => k[0] >= halvingTs);
   if (!postHalving.length) return;
-  const ath     = Math.max(...postHalving.map(([, p]) => p));
-  const athEntry = postHalving.find(([, p]) => p === ath);
-  const athDate  = athEntry ? new Date(athEntry[0]).toLocaleDateString('en-US', { month: 'short', year: 'numeric' }) : '';
+  // Käytetään viikon HIGH-hintaa (index 2) — näyttää todellisen ATH:n
+  const ath      = Math.max(...postHalving.map(k => parseFloat(k[2])));
+  const athWeek  = postHalving.find(k => parseFloat(k[2]) === ath);
+  const athDate  = athWeek ? new Date(athWeek[0]).toLocaleDateString('en-US', { month: 'short', year: 'numeric' }) : '';
   const athEl    = el('mktATH');
   const athDtEl  = el('mktATHDate');
   if (athEl)   athEl.textContent   = '$' + Math.round(ath).toLocaleString();
