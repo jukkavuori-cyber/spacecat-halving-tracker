@@ -419,31 +419,32 @@ html, body { height: 100%; overflow: hidden; background: var(--bg); color: var(-
   }
   .journey-panel::after { display: none; }
   .journey-panel {
-    /* Tarkka korkeus: 100svh miinus header(63) + ribbon(83) + bottomnav(61) + margin(5) */
     height: calc(100svh - 212px);
     min-height: 0;
-    padding: 8px 0;
-    /* flex-direction: row (oletus) — track ja stats vierekkäin */
+    /* kissa vasemmalle, stats täyttää loput */
+    padding: 8px 6px 8px 20px;
     align-items: center;
-    justify-content: center;
+    justify-content: flex-start;
+    gap: 10px;
     overflow: visible;
   }
   .chart-panel { padding: 14px 0; }
 
-  /* Stats pystyyn oikealle kuten desktopilla, ei enää neliöön */
+  /* Stats — normaali flow, täyttää loput leveyden */
   .stats-strip {
-    position: absolute;
-    right: 2px;        /* pieni marginaali reunaan */
-    top: 50%;
-    transform: translateY(-50%);
+    position: static;
+    transform: none;
     flex-direction: column;
-    gap: 6px;
+    gap: 5px;
+    flex: 1;
+    min-width: 0;
     pointer-events: auto;
+    align-self: center;
   }
-  .scard, .cd-card { width: 132px; }
+  .scard, .cd-card { width: 100%; }
 
-  .vprog { left: 2px; }
-  .track-col { width: 128px; flex-shrink: 0; }
+  .vprog { left: 4px; }
+  .track-col { width: 105px; flex-shrink: 0; }
   .brow { grid-template-columns: 1fr 1fr; }
   .brow .bstat:last-child { grid-column: span 2; }
   .hh-cards { grid-template-columns: 1fr 1fr; }
