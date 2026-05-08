@@ -24,9 +24,11 @@ jobs:
         run: npx wrangler pages project create spacecat-halving-tracker --production-branch main || true
         env:
           CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: 5f6e517699b1608f5e0fbdb83a34387a
 
       - name: Deploy to Cloudflare Pages
         uses: cloudflare/wrangler-action@v3
         with:
           apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          accountId: 5f6e517699b1608f5e0fbdb83a34387a
           command: pages deploy dist --project-name spacecat-halving-tracker
