@@ -53,7 +53,7 @@ const fetchDiff   = () => apiFetch('https://mempool.space/api/v1/difficulty-adju
 });
 const fetchFees   = () => apiFetch('https://mempool.space/api/v1/fees/recommended', { halfHourFee: DEMO.fee });
 const fetchPrices = () => apiFetch(
-  'https://api.coingecko.com/api/v3/coins/bitcoin/market_chart?vs_currency=usd&days=365&interval=monthly', null
+  'https://api.coingecko.com/api/v3/coins/bitcoin/market_chart?vs_currency=usd&days=730&interval=monthly', null
 );
 
 // ── WEBSOCKET (real-time blocks) ──────────────────────────────────────────────
@@ -303,8 +303,8 @@ window.testMeow = () => popMeow('happy');
 // ── CHART ─────────────────────────────────────────────────────────────────────
 const FB_LABELS = ['Apr\'24','May\'24','Jun\'24','Jul\'24','Aug\'24','Sep\'24','Oct\'24','Nov\'24','Dec\'24','Jan\'25','Feb\'25','Mar\'25','Apr\'25'];
 const FB_DATA   = [63700,61500,67200,66000,59500,62300,72000,96400,101200,108786,97000,82500,94280];
-const RANGES    = { '1M': 2, '3M': 4, '6M': 7, '1Y': 13 };
-let btcChart, chartLabels = FB_LABELS, chartData = FB_DATA;
+const RANGES    = { '1M': 2, '3M': 4, '6M': 7, '1Y': 13, '2Y': 25 };
+let btcChart, chartLabels = FB_LABELS, chartData = FB_DATA, activeRange = '1Y';
 
 function initChart(prices) {
   if (prices?.prices?.length > 0) {
@@ -359,12 +359,27 @@ function initChart(prices) {
 }
 
 window.setRange = (btn, range) => {
+  activeRange = range;
   document.querySelectorAll('.pill').forEach(p => p.classList.remove('active'));
   btn.classList.add('active');
-  btcChart.data.labels = chartLabels.slice(-RANGES[range]);
-  btcChart.data.datasets[0].data = chartData.slice(-RANGES[range]);
+  const n = RANGES[range] || chartLabels.length;
+  btcChart.data.labels = chartLabels.slice(-n);
+  btcChart.data.datasets[0].data = chartData.slice(-n);
   btcChart.update('active');
 };
+
+// Päivittää kaavion viimeisen pisteen live-hinnalla
+function updateChartCurrentPrice(price) {
+  if (!btcChart || !price) return;
+  const last = chartData.length - 1;
+  chartData[last] = Math.round(price);
+  const n = RANGES[activeRange] || chartLabels.length;
+  const idx = btcChart.data.datasets[0].data.length - 1;
+  if (idx >= 0) {
+    btcChart.data.datasets[0].data[idx] = Math.round(price);
+    btcChart.update('none'); // silent update, ei animaatiota
+  }
+}
 
 // ── STARFIELD ─────────────────────────────────────────────────────────────────
 function initStarfield() {
@@ -468,6 +483,7 @@ function updateMarketStats(data) {
       changeEl.textContent = (up ? '▲ ' : '▼ ') + Math.abs(btc.usd_24h_change ?? 0).toFixed(1) + '% today';
       changeEl.className   = 'bc ' + (up ? 'up' : 'dn');
     }
+    updateChartCurrentPrice(btc.usd); // synkronoi kaavio live-hintaan
   }
 
   if (btc.usd_market_cap != null) {
