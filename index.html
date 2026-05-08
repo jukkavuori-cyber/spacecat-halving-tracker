@@ -186,6 +186,31 @@
 <div id="toast"><div id="tTitle"></div><div id="tBody"></div></div>
 
 <!-- ── TWEAKS BUTTON ── -->
+<button id="tipBtn" onclick="toggleTip()" title="Buy me a beer 🍺">🍺</button>
+
+<!-- ── TIP PANEL ── -->
+<div id="tipPanel">
+  <div class="tip-header">
+    <span class="tip-title">🍺 BUY ME A BEER</span>
+    <button class="tip-close" onclick="toggleTip()">✕</button>
+  </div>
+  <div class="tip-body">
+    <div class="tip-sub">enjoying spacecat? send some sats ⚡</div>
+    <img class="tip-qr"
+      src="https://api.qrserver.com/v1/create-qr-code/?size=148x148&margin=4&color=d4a800&bgcolor=0a0a1a&data=bitcoin:bc1qu4ckfatwrr4ycmleq0sw4gpv3h05g0dgg7ztx0"
+      alt="BTC QR code" />
+    <div class="tip-addr-wrap">
+      <span class="tip-addr" id="tipAddr">bc1qu4ckfatwrr4ycmleq0sw4gpv3h05g0dgg7ztx0</span>
+      <button class="tip-copy" id="tipCopyBtn" onclick="copyTipAddr()">COPY</button>
+    </div>
+    <div class="tip-amounts">
+      <button class="tip-amt" onclick="openTipLink(1000)">1k sats</button>
+      <button class="tip-amt" onclick="openTipLink(5000)">5k sats</button>
+      <button class="tip-amt" onclick="openTipLink(21000)">21k sats</button>
+    </div>
+  </div>
+</div>
+
 <button id="tweaksBtn" onclick="toggleTweaks()" title="Customize SpaceCat">✦</button>
 
 <!-- ── TWEAKS PANEL ── -->

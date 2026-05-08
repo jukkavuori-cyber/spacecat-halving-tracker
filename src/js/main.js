@@ -557,6 +557,28 @@ window.setTheme = theme => {
 };
 window.toggleTweaks = () => el('tweaksPanel').classList.toggle('open');
 
+// ── TIP JAR ───────────────────────────────────────────────────────────────────
+const TIP_ADDR = 'bc1qu4ckfatwrr4ycmleq0sw4gpv3h05g0dgg7ztx0';
+
+window.toggleTip = () => el('tipPanel').classList.toggle('open');
+
+window.copyTipAddr = async () => {
+  try {
+    await navigator.clipboard.writeText(TIP_ADDR);
+    const btn = el('tipCopyBtn');
+    btn.textContent = 'COPIED ✓';
+    btn.style.borderColor = 'var(--gold)';
+    btn.style.color = 'var(--gold)';
+    setTimeout(() => { btn.textContent = 'COPY'; btn.style.borderColor = ''; btn.style.color = ''; }, 2000);
+  } catch { prompt('Copy address:', TIP_ADDR); }
+};
+
+window.openTipLink = sats => {
+  // Bitcoin URI with amount in BTC
+  const btc = (sats / 1e8).toFixed(8);
+  window.open(`bitcoin:${TIP_ADDR}?amount=${btc}`, '_blank');
+};
+
 // ── MOBILE TABS ───────────────────────────────────────────────────────────────
 window.setTab = tab => {
   el('journeyPanel').style.display = tab === 'journey' ? '' : 'none';
