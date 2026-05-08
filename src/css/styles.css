@@ -121,7 +121,7 @@ html, body { height: 100%; overflow: hidden; background: var(--bg); color: var(-
   font-size: .47rem; white-space: nowrap; color: var(--accent-a); font-family: var(--fh); }
 
 /* Track */
-.track-col { position: relative; width: 188px; height: 100%; display: flex; flex-direction: column; align-items: center; transform: translateX(30px); }
+.track-col { position: relative; width: 188px; height: 100%; display: flex; flex-direction: column; align-items: center; }
 .moon-wrap { position: absolute; top: 0; left: 50%; transform: translateX(-50%);
   display: flex; flex-direction: column; align-items: center; gap: 3px; z-index: 6; }
 .moon { width: 74px; height: 74px; border-radius: 50%;
@@ -492,7 +492,7 @@ html, body { height: 100%; overflow: hidden; background: var(--bg); color: var(-
   .scard, .cd-card { width: 100%; }
 
   .vprog { left: 4px; }
-  .track-col { width: 105px; flex-shrink: 0; transform: none; }
+  .track-col { width: 105px; flex-shrink: 0; }
   .brow { grid-template-columns: 1fr 1fr; }
   .brow .bstat:last-child { grid-column: span 1; }
   .hh-cards { grid-template-columns: 1fr 1fr; }
