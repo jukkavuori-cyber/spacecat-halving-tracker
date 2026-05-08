@@ -432,11 +432,23 @@ const DEMO_MARKET = {
   'matic-network':{ usd: 0.92,  usd_24h_change: -0.5  },
 };
 
+// BTC hinta Binancesta (ilmainen, ei rate-limittejä)
+async function fetchBTCPrice() {
+  const d = await apiFetch('https://api.binance.com/api/v3/ticker/24hr?symbol=BTCUSDT', null);
+  if (!d) return null;
+  return {
+    usd:            parseFloat(d.lastPrice),
+    usd_24h_change: parseFloat(d.priceChangePercent),
+    usd_market_cap: null, // ei saatavilla Binancesta
+  };
+}
+
+// Altcoin ticker + BTC market cap CoinGeckosta (5min välein)
 async function fetchMarketData() {
   const ids = TICKER_COINS.map(c => c.id).join(',');
   return apiFetch(
     `https://api.coingecko.com/api/v3/simple/price?ids=${ids}&vs_currencies=usd&include_24hr_change=true&include_market_cap=true`,
-    null  // null = API epäonnistui, älä ylikirjoita arvoja
+    null
   );
 }
 
@@ -513,10 +525,19 @@ function updateCycleATH(prices) {
 }
 
 async function refreshMarketData() {
-  const data = await fetchMarketData();
-  if (!data) return; // API rate-limited tai virhe — pidetään viimeiset oikeat arvot
-  renderTicker(data);
-  updateMarketStats(data);
+  // BTC hinta Binancesta — ilmainen, luotettava, ei rate-limittejä
+  const btcData = await fetchBTCPrice();
+  if (btcData) {
+    updateMarketStats({ bitcoin: btcData });
+  }
+
+  // Altcoin ticker CoinGeckosta — 5min välein riittää
+  const tickerData = await fetchMarketData();
+  if (tickerData) {
+    // Yhdistetään Binancen BTC-hinta CoinGeckon dataan
+    if (btcData) tickerData.bitcoin = { ...tickerData.bitcoin, ...btcData };
+    renderTicker(tickerData);
+  }
 }
 
 // ── SHARE ─────────────────────────────────────────────────────────────────────
@@ -582,7 +603,7 @@ window.addEventListener('DOMContentLoaded', () => {
     fetchPrices().then(d => { if (d) { initChart(d); updateCycleATH(d); } });
   }, 150);
 
-  // Markkinahinnat — päivittyy 5 min välein (riittää halvingiin ~2v)
+  // BTC hinta Binancesta joka 5min, altcoin ticker CoinGeckosta samassa
   refreshMarketData();
   setInterval(refreshMarketData, 5 * 60_000);
 
