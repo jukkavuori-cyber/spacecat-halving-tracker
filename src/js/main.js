@@ -582,9 +582,9 @@ window.addEventListener('DOMContentLoaded', () => {
     fetchPrices().then(d => { if (d) { initChart(d); updateCycleATH(d); } });
   }, 150);
 
-  // Reaaliaikaiset markkinahinnat
+  // Markkinahinnat — päivittyy 5 min välein (riittää halvingiin ~2v)
   refreshMarketData();
-  setInterval(refreshMarketData, 60_000);
+  setInterval(refreshMarketData, 5 * 60_000);
 
   // WebSocket for real-time block push
   initWebSocket();
