@@ -390,19 +390,116 @@ function initStarfield() {
   })();
 }
 
-// ── TICKER ────────────────────────────────────────────────────────────────────
-function initTicker() {
-  const T = [
-    {n:'BTC',p:'$94,280',c:'+2.4%',u:1},{n:'ETH',p:'$3,210',c:'+1.1%',u:1},
-    {n:'SOL',p:'$178',c:'-0.8%',u:0},{n:'BNB',p:'$612',c:'+0.5%',u:1},
-    {n:'ADA',p:'$0.48',c:'-1.2%',u:0},{n:'DOGE',p:'$0.17',c:'+3.1%',u:1},
-    {n:'AVAX',p:'$38.40',c:'+0.9%',u:1},{n:'LINK',p:'$14.22',c:'-0.3%',u:0},
-    {n:'DOT',p:'$8.14',c:'+1.7%',u:1},{n:'MATIC',p:'$0.92',c:'-0.5%',u:0},
-  ];
+// ── MARKET DATA (CoinGecko) ───────────────────────────────────────────────────
+const TICKER_COINS = [
+  { id: 'bitcoin',       sym: 'BTC'  },
+  { id: 'ethereum',      sym: 'ETH'  },
+  { id: 'solana',        sym: 'SOL'  },
+  { id: 'binancecoin',   sym: 'BNB'  },
+  { id: 'cardano',       sym: 'ADA'  },
+  { id: 'dogecoin',      sym: 'DOGE' },
+  { id: 'avalanche-2',   sym: 'AVAX' },
+  { id: 'chainlink',     sym: 'LINK' },
+  { id: 'polkadot',      sym: 'DOT'  },
+  { id: 'matic-network', sym: 'POL'  },
+];
+
+const DEMO_MARKET = {
+  bitcoin:       { usd: 94280,  usd_24h_change:  2.4,  usd_market_cap: 1.87e12 },
+  ethereum:      { usd: 3210,   usd_24h_change:  1.1  },
+  solana:        { usd: 178,    usd_24h_change: -0.8  },
+  binancecoin:   { usd: 612,    usd_24h_change:  0.5  },
+  cardano:       { usd: 0.48,   usd_24h_change: -1.2  },
+  dogecoin:      { usd: 0.17,   usd_24h_change:  3.1  },
+  'avalanche-2': { usd: 38.40,  usd_24h_change:  0.9  },
+  chainlink:     { usd: 14.22,  usd_24h_change: -0.3  },
+  polkadot:      { usd: 8.14,   usd_24h_change:  1.7  },
+  'matic-network':{ usd: 0.92,  usd_24h_change: -0.5  },
+};
+
+async function fetchMarketData() {
+  const ids = TICKER_COINS.map(c => c.id).join(',');
+  return apiFetch(
+    `https://api.coingecko.com/api/v3/simple/price?ids=${ids}&vs_currencies=usd&include_24hr_change=true&include_market_cap=true`,
+    DEMO_MARKET
+  );
+}
+
+function fmtPrice(n) {
+  if (n >= 1000) return '$' + n.toLocaleString('en-US', { maximumFractionDigits: 0 });
+  if (n >= 1)    return '$' + n.toFixed(2);
+  return '$' + n.toFixed(4);
+}
+
+function fmtChange(n) {
+  return (n >= 0 ? '+' : '') + n.toFixed(1) + '%';
+}
+
+function fmtMarketCap(n) {
+  if (n >= 1e12) return '$' + (n / 1e12).toFixed(2) + 'T';
+  if (n >= 1e9)  return '$' + (n / 1e9).toFixed(0) + 'B';
+  return '$' + n.toLocaleString();
+}
+
+function renderTicker(data) {
+  const T = TICKER_COINS.map(c => {
+    const d      = data[c.id] || {};
+    const price  = d.usd != null ? fmtPrice(d.usd) : '—';
+    const change = d.usd_24h_change != null ? fmtChange(d.usd_24h_change) : '—';
+    const up     = (d.usd_24h_change ?? 0) >= 0 ? 1 : 0;
+    return { n: c.sym, p: price, c: change, u: up };
+  });
   const html = arr => arr.map(t =>
     `<span class="ti"><span class="tn">${t.n}</span><span class="tp">${t.p}</span><span class="tc ${t.u?'up':'dn'}">${t.c}</span></span><span class="ts">◆</span>`
   ).join('');
   el('tickerInner').innerHTML = html(T) + html(T);
+}
+
+function updateMarketStats(data) {
+  const btc = data.bitcoin;
+  if (!btc) return;
+
+  if (btc.usd != null) {
+    const up = (btc.usd_24h_change ?? 0) >= 0;
+    const priceEl  = el('mktPrice');
+    const changeEl = el('mktPriceChange');
+    if (priceEl)  priceEl.textContent  = fmtPrice(btc.usd);
+    if (changeEl) {
+      changeEl.textContent = (up ? '▲ ' : '▼ ') + Math.abs(btc.usd_24h_change ?? 0).toFixed(1) + '% today';
+      changeEl.className   = 'bc ' + (up ? 'up' : 'dn');
+    }
+  }
+
+  if (btc.usd_market_cap != null) {
+    const up    = (btc.usd_24h_change ?? 0) >= 0;
+    const mcEl  = el('mktCap');
+    const mcChEl = el('mktCapChange');
+    if (mcEl)   mcEl.textContent   = fmtMarketCap(btc.usd_market_cap);
+    if (mcChEl) {
+      mcChEl.textContent = (up ? '▲ ' : '▼ ') + Math.abs(btc.usd_24h_change ?? 0).toFixed(1) + '% 24h';
+      mcChEl.className   = 'bc ' + (up ? 'up' : 'dn');
+    }
+  }
+}
+
+function updateCycleATH(prices) {
+  if (!prices?.prices?.length) return;
+  const halvingTs = new Date('2024-04-20').getTime();
+  const postHalving = prices.prices.filter(([ts]) => ts >= halvingTs);
+  if (!postHalving.length) return;
+  const ath     = Math.max(...postHalving.map(([, p]) => p));
+  const athEntry = postHalving.find(([, p]) => p === ath);
+  const athDate  = athEntry ? new Date(athEntry[0]).toLocaleDateString('en-US', { month: 'short', year: 'numeric' }) : '';
+  const athEl    = el('mktATH');
+  const athDtEl  = el('mktATHDate');
+  if (athEl)   athEl.textContent   = '$' + Math.round(ath).toLocaleString();
+  if (athDtEl) athDtEl.textContent = athDate;
+}
+
+async function refreshMarketData() {
+  const data = await fetchMarketData();
+  renderTicker(data);
+  updateMarketStats(data);
 }
 
 // ── SHARE ─────────────────────────────────────────────────────────────────────
@@ -450,7 +547,7 @@ async function refresh() {
 // ── INIT ──────────────────────────────────────────────────────────────────────
 window.addEventListener('DOMContentLoaded', () => {
   initStarfield();
-  initTicker();
+  renderTicker(DEMO_MARKET); // näytetään demo heti, korvataan reaaliajassa
 
   requestAnimationFrame(() => requestAnimationFrame(() => {
     updateStats(state.currentBlock);
@@ -465,8 +562,12 @@ window.addEventListener('DOMContentLoaded', () => {
 
   setTimeout(() => {
     initChart(null);
-    fetchPrices().then(d => { if (d) initChart(d); });
+    fetchPrices().then(d => { if (d) { initChart(d); updateCycleATH(d); } });
   }, 150);
+
+  // Reaaliaikaiset markkinahinnat
+  refreshMarketData();
+  setInterval(refreshMarketData, 60_000);
 
   // WebSocket for real-time block push
   initWebSocket();
