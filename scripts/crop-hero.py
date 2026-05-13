@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
-"""Crop sprite sheet into 6 frames and remove background with rembg."""
-from PIL import Image
+"""Crop sprite sheet into 6 frames and remove background with rembg.
+Preserves ear tips by painting over the number badge BEFORE cropping."""
+from PIL import Image, ImageDraw
 from rembg import remove
 import io, os
 
@@ -13,7 +14,30 @@ W, H = img.size
 print(f"Source: {W}x{H}")
 
 CW, CH = W // 3, H // 2
-TRIM_TOP, TRIM_BOTTOM, TRIM_SIDES = 70, 80, 30
+
+# Paint the number badge area (top-left of each cell) white so it disappears
+# during background removal. This lets us keep a smaller TRIM_TOP and preserve
+# ear tips.
+draw = ImageDraw.Draw(img)
+BADGE_W, BADGE_H = 78, 68   # generous area around the badge
+for idx in range(6):
+    col = idx % 3
+    row = idx // 3
+    x0 = col * CW
+    y0 = row * CH
+    draw.rectangle([x0, y0, x0 + BADGE_W, y0 + BADGE_H], fill=(255, 255, 255, 255))
+
+# Also paint the LABEL strip at the bottom of each cell white
+LABEL_H = 60
+for idx in range(6):
+    col = idx % 3
+    row = idx // 3
+    x0 = col * CW
+    y1 = (row + 1) * CH
+    draw.rectangle([x0, y1 - LABEL_H, x0 + CW, y1], fill=(255, 255, 255, 255))
+
+# Crop with much less aggressive top trim to keep ear tips
+TRIM_TOP, TRIM_BOTTOM, TRIM_SIDES = 18, 18, 18
 
 for idx in range(6):
     col = idx % 3
