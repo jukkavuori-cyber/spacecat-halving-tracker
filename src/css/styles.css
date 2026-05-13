@@ -274,6 +274,65 @@ html, body { height: 100%; overflow: hidden; background: var(--bg); color: var(-
   background: oklch(.7 .2 145 / .08);
 }
 
+/* ── Block hash reveal ────────────────────────────── */
+#hashReveal {
+  position: fixed; left: 50%; bottom: 90px; transform: translateX(-50%) translateY(20px);
+  z-index: 220; pointer-events: none; opacity: 0;
+  transition: opacity .4s ease, transform .6s cubic-bezier(.2,.7,.2,1);
+}
+#hashReveal.show {
+  opacity: 1; transform: translateX(-50%) translateY(0);
+}
+.hr-inner {
+  background: linear-gradient(135deg, oklch(.08 .04 265 / .92), oklch(.04 .04 265 / .96));
+  border: 1px solid oklch(.7 .2 145 / .55);
+  padding: 14px 26px; min-width: 360px; max-width: 92vw;
+  text-align: center;
+  box-shadow:
+    0 0 24px oklch(.7 .2 145 / .35),
+    0 0 48px oklch(.7 .2 145 / .15),
+    0 14px 32px rgba(0,0,0,.55);
+  position: relative; overflow: hidden;
+}
+.hr-inner::before {
+  content: ''; position: absolute; left: 0; top: 0; width: 4px; height: 100%;
+  background: var(--green); box-shadow: 0 0 12px var(--green);
+}
+.hr-inner::after {
+  content: ''; position: absolute; left: 0; right: 0; bottom: 0; height: 1px;
+  background: linear-gradient(90deg, transparent, var(--green), transparent);
+  animation: hrScan 2.5s linear infinite;
+}
+@keyframes hrScan { 0%{left:-50%} 100%{left:100%} }
+.hr-label {
+  font-family: var(--fh); font-size: .58rem; letter-spacing: .24em;
+  color: var(--green); text-transform: uppercase; margin-bottom: 6px;
+}
+.hr-height {
+  font-family: var(--fh); font-size: 1.5rem; font-weight: 900;
+  color: var(--gold); letter-spacing: .04em; margin-bottom: 6px;
+  text-shadow: 0 0 18px oklch(.85 .18 85 / .4);
+}
+.hr-hash {
+  font-family: var(--ft); font-size: .7rem;
+  color: var(--text); letter-spacing: .04em; margin-bottom: 6px;
+  word-break: break-all; line-height: 1.4;
+  position: relative;
+}
+.hr-hash .digit {
+  display: inline-block;
+  animation: hrDigitIn .04s ease-out backwards;
+  color: var(--accent-a);
+}
+.hr-hash .digit.lead { color: var(--green); }
+@keyframes hrDigitIn {
+  from { opacity: 0; transform: translateY(-4px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+.hr-meta {
+  font-size: .62rem; color: var(--text-dim); letter-spacing: .06em;
+}
+
 /* ── Konami flash ─────────────────────────────────── */
 .konami-flash::before {
   content: ''; position: fixed; inset: 0; z-index: 9999; pointer-events: none;

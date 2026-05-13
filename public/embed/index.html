@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>SpaceCat — Bitcoin Halving Countdown Widget</title>
+<meta name="description" content="Embeddable Bitcoin halving countdown widget by SpaceCat." />
+<meta name="robots" content="noindex,follow" />
+<link rel="canonical" href="https://spacecat.academy/embed/" />
+<link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@600;700;900&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet" />
+<style>
+  :root {
+    --bg: #02020e;
+    --surface: oklch(.085 .05 265 / .92);
+    --border: oklch(.45 .12 285 / .35);
+    --gold: oklch(.85 .18 85);
+    --green: oklch(.7 .2 145);
+    --cyan: oklch(.82 .22 195);
+    --accent: oklch(.72 .28 285);
+    --text: #e8e8ff;
+    --dim: oklch(.55 .08 265);
+    --fh: 'Orbitron', sans-serif;
+    --ft: 'Space Mono', monospace;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  html, body {
+    height: 100%; background: transparent; color: var(--text);
+    font-family: var(--ft); overflow: hidden;
+  }
+  body {
+    display: flex; align-items: center; justify-content: center;
+    padding: 8px;
+  }
+  .widget {
+    width: 100%; max-width: 480px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    padding: 18px 22px; position: relative;
+    backdrop-filter: blur(10px);
+    overflow: hidden;
+  }
+  .widget::before {
+    content: ''; position: absolute; left: 0; top: 0; width: 100%; height: 2px;
+    background: linear-gradient(90deg, var(--accent), var(--cyan), var(--gold));
+  }
+  .head { display: flex; align-items: center; justify-content: space-between; gap: 8px; margin-bottom: 12px; }
+  .brand { display: flex; align-items: center; gap: 8px; }
+  .logo { width: 26px; height: 26px; }
+  .name {
+    font-family: var(--fh); font-weight: 900; font-size: .82rem;
+    letter-spacing: .14em;
+    background: linear-gradient(100deg, var(--accent), var(--cyan));
+    -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+  .tag {
+    font-size: .48rem; letter-spacing: .18em; text-transform: uppercase; color: var(--dim);
+  }
+  .live {
+    display: flex; align-items: center; gap: 5px;
+    font-size: .5rem; letter-spacing: .18em; color: var(--green);
+    border: 1px solid oklch(.7 .2 145 / .45);
+    padding: 3px 8px; border-radius: 0;
+  }
+  .live .ldot {
+    width: 6px; height: 6px; border-radius: 50%;
+    background: var(--green); box-shadow: 0 0 6px var(--green);
+    animation: ldot 1.8s ease-in-out infinite;
+  }
+  @keyframes ldot { 0%,100%{opacity:1} 50%{opacity:.4} }
+
+  .title {
+    font-family: var(--fh); font-size: .72rem; letter-spacing: .12em;
+    color: var(--dim); text-transform: uppercase; margin-bottom: 8px;
+  }
+  .digits {
+    display: flex; align-items: baseline; justify-content: center; gap: 4px;
+    margin: 6px 0 10px;
+  }
+  .d { display: flex; flex-direction: column; align-items: center; min-width: 56px; }
+  .num {
+    font-family: var(--fh); font-size: 1.7rem; font-weight: 900;
+    color: var(--gold); letter-spacing: .04em; line-height: 1;
+    text-shadow: 0 0 14px oklch(.85 .18 85 / .35);
+  }
+  .unit {
+    font-size: .42rem; letter-spacing: .18em; text-transform: uppercase;
+    color: var(--dim); margin-top: 3px;
+  }
+  .sep { font-family: var(--fh); font-size: 1.2rem; color: var(--dim); padding: 0 2px; line-height: 1; }
+  .footrow {
+    display: flex; justify-content: space-between; align-items: center;
+    margin-top: 10px; padding-top: 10px;
+    border-top: 1px solid oklch(.4 .1 285 / .15);
+    font-size: .55rem; color: var(--dim);
+  }
+  .blk { color: var(--cyan); font-family: var(--fh); }
+  a { color: var(--accent); text-decoration: none; font-size: .55rem; letter-spacing: .12em; text-transform: uppercase; }
+  a:hover { color: var(--cyan); }
+</style>
+</head>
+<body>
+  <div class="widget">
+    <div class="head">
+      <div class="brand">
+        <img class="logo" src="/favicon.svg" alt="" />
+        <div>
+          <div class="name">SPACECAT</div>
+          <div class="tag">Halving Countdown</div>
+        </div>
+      </div>
+      <div class="live"><div class="ldot"></div>LIVE</div>
+    </div>
+
+    <div class="title">🚀 Next Halving</div>
+    <div class="digits">
+      <div class="d"><span class="num" id="d">—</span><span class="unit">days</span></div>
+      <span class="sep">:</span>
+      <div class="d"><span class="num" id="h">—</span><span class="unit">hrs</span></div>
+      <span class="sep">:</span>
+      <div class="d"><span class="num" id="m">—</span><span class="unit">min</span></div>
+      <span class="sep">:</span>
+      <div class="d"><span class="num" id="s">—</span><span class="unit">sec</span></div>
+    </div>
+
+    <div class="footrow">
+      <span>Block <span class="blk" id="blk">…</span> · <span id="pct">—%</span> to moon</span>
+      <a href="https://spacecat.academy" target="_blank" rel="noopener">spacecat.academy ↗</a>
+    </div>
+  </div>
+
+<script>
+  const NEXT_HALVING = 1_050_000;
+  const LAST_HALVING = 840_000;
+  const BLOCKS_PER_DAY = 144;
+  let currentBlock = 949_000;
+
+  function pad(n) { return String(n).padStart(2, '0'); }
+  function fmt(n) { return n.toLocaleString('en-US'); }
+
+  function render() {
+    const remaining = Math.max(0, NEXT_HALVING - currentBlock);
+    const seconds = remaining * 600; // ~10 min per block
+    const d = Math.floor(seconds / 86400);
+    const h = Math.floor((seconds % 86400) / 3600);
+    const m = Math.floor((seconds % 3600) / 60);
+    const s = Math.floor(seconds % 60);
+    document.getElementById('d').textContent = d;
+    document.getElementById('h').textContent = pad(h);
+    document.getElementById('m').textContent = pad(m);
+    document.getElementById('s').textContent = pad(s);
+    document.getElementById('blk').textContent = '#' + fmt(currentBlock);
+    const pct = ((currentBlock - LAST_HALVING) / (NEXT_HALVING - LAST_HALVING) * 100);
+    document.getElementById('pct').textContent = pct.toFixed(1) + '%';
+  }
+
+  async function fetchBlock() {
+    try {
+      const r = await fetch('https://mempool.space/api/blocks/tip/height');
+      if (r.ok) {
+        const h = await r.json();
+        if (typeof h === 'number') currentBlock = h;
+      }
+    } catch {}
+  }
+
+  // Tick second-by-second; refresh real block height every 60s
+  render();
+  fetchBlock().then(render);
+  setInterval(render, 1000);
+  setInterval(() => fetchBlock().then(render), 60_000);
+</script>
+</body>
+</html>

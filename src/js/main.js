@@ -7,6 +7,7 @@ import { startBlockchainRain } from './blockchain-rain.js';
 import {
   trackClick, restoreUnlocks, initKonami,
   renderCyclePhase, initNotifications, maybeNotifyBlock,
+  revealNewBlock,
 } from './extras.js';
 import { startLiveData, refreshRecentBlocks } from './live-data.js';
 
@@ -247,7 +248,8 @@ function onNewBlock(block) {
   // Update cycle phase + maybe trigger a milestone notification
   renderCyclePhase(halvingProgress(block).progress);
   maybeNotifyBlock(block);
-  // Refresh the recent-blocks list so the new block shows up immediately
+  // Dramatic hash reveal + refresh the recent-blocks list
+  revealNewBlock(block);
   refreshRecentBlocks();
 }
 

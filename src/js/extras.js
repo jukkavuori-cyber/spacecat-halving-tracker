@@ -155,6 +155,53 @@ export function notifyMilestone(title, body) {
   } catch {}
 }
 
+// ── 5. Block hash reveal ────────────────────────────────────────────────────
+let lastRevealHeight = 0;
+export async function revealNewBlock(height) {
+  const root = document.getElementById('hashReveal');
+  if (!root || !height || height === lastRevealHeight) return;
+  lastRevealHeight = height;
+
+  // Fetch hash + pool info from mempool.space
+  let hash = '', pool = 'Unknown', reward = '';
+  try {
+    const r = await fetch(`https://mempool.space/api/v1/blocks/${height}`);
+    if (r.ok) {
+      const blocks = await r.json();
+      const b = (blocks || []).find(x => x.height === height) || blocks[0];
+      if (b) {
+        hash = b.id || '';
+        pool = (b.extras && b.extras.pool && b.extras.pool.name) || 'Unknown';
+        reward = b.extras && b.extras.reward
+          ? (b.extras.reward / 1e8).toFixed(3) + ' BTC'
+          : '3.125 BTC';
+      }
+    }
+  } catch {}
+  if (!hash) hash = '0000000000000000000' + Math.random().toString(16).slice(2, 18);
+
+  // Populate fields
+  document.getElementById('hrHeight').textContent = '#' + height.toLocaleString('en-US');
+  document.getElementById('hrMeta').textContent = `Mined by ${pool} · ${reward || '3.125 BTC'}`;
+
+  // Animate the hash character-by-character
+  const hashEl = document.getElementById('hrHash');
+  hashEl.innerHTML = '';
+  let leadingZeros = 0;
+  for (const ch of hash) { if (ch === '0') leadingZeros++; else break; }
+  [...hash].forEach((ch, i) => {
+    const span = document.createElement('span');
+    span.className = 'digit' + (i < leadingZeros ? ' lead' : '');
+    span.textContent = ch;
+    span.style.animationDelay = (i * 18) + 'ms';
+    hashEl.appendChild(span);
+  });
+
+  root.classList.add('show');
+  clearTimeout(revealNewBlock._h);
+  revealNewBlock._h = setTimeout(() => root.classList.remove('show'), 7500);
+}
+
 // Trigger on milestone blocks (every 10k from launchpad)
 export function maybeNotifyBlock(block) {
   if (!block) return;
