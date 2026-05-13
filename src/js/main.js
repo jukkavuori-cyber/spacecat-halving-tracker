@@ -3,6 +3,8 @@
 // ║  SpaceCat v3 — Core Logic                          ║
 // ╚════════════════════════════════════════════════════╝
 
+import { startBlockchainRain } from './blockchain-rain.js';
+
 const LAST_HALVING   = 840_000;
 const NEXT_HALVING   = 1_050_000;
 const BLOCKS_PER_DAY = 144;
@@ -845,6 +847,7 @@ async function refresh() {
 // ── INIT ──────────────────────────────────────────────────────────────────────
 window.addEventListener('DOMContentLoaded', () => {
   initStarfield();
+  startBlockchainRain(); // ambient hex-rain on the right edge (>=1480px wide)
   renderTicker(DEMO_MARKET); // placeholder ennen ensimmäistä API-vastausta
 
   requestAnimationFrame(() => requestAnimationFrame(() => {
