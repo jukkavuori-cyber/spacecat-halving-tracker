@@ -199,6 +199,31 @@ html, body { height: 100%; overflow: hidden; background: var(--bg); color: var(-
   filter: drop-shadow(0 -3px 5px var(--hc)); pointer-events: none; transition: border-bottom-color .5s; }
 @keyframes catfloat { 0%,100%{transform:translateY(0) rotate(-1.5deg)} 50%{transform:translateY(-9px) rotate(1.5deg)} }
 
+/* ── Cycle phase chip ─────────────────────────────── */
+.cycle-phase .cp-emoji { font-size: .82rem; margin-right: 4px; }
+.cycle-phase .cp-name  { font-family: var(--fh); font-weight: 700; font-size: .72rem; letter-spacing: .06em; }
+.cycle-phase .cp-desc  { display: block; font-size: .42rem; letter-spacing: .12em; color: var(--text-dim); text-transform: uppercase; margin-top: 2px; }
+
+/* ── Notify button ────────────────────────────────── */
+.notify-btn { transition: color .25s, background .25s, border-color .25s; }
+.notify-btn.on {
+  color: oklch(.7 .2 145);
+  border-color: oklch(.7 .2 145 / .55);
+  background: oklch(.7 .2 145 / .08);
+}
+
+/* ── Konami flash ─────────────────────────────────── */
+.konami-flash::before {
+  content: ''; position: fixed; inset: 0; z-index: 9999; pointer-events: none;
+  background: radial-gradient(circle at 50% 50%, rgba(160,100,255,.3), rgba(80,200,230,.2) 40%, transparent 70%);
+  animation: konamiFlash 1.8s ease-out forwards;
+}
+@keyframes konamiFlash {
+  0%   { opacity: 0; filter: hue-rotate(0deg); }
+  20%  { opacity: 1; filter: hue-rotate(180deg); }
+  100% { opacity: 0; filter: hue-rotate(360deg); }
+}
+
 /* ── Hoverboard deck ──────────────────────────────── */
 .hoverboard {
   position: relative;

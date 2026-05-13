@@ -4,6 +4,10 @@
 // ╚════════════════════════════════════════════════════╝
 
 import { startBlockchainRain } from './blockchain-rain.js';
+import {
+  trackClick, restoreUnlocks, initKonami,
+  renderCyclePhase, initNotifications, maybeNotifyBlock,
+} from './extras.js';
 
 const LAST_HALVING   = 840_000;
 const NEXT_HALVING   = 1_050_000;
@@ -238,6 +242,10 @@ function onNewBlock(block) {
   const hb = el('headerBlock');
   hb.classList.add('flash');
   setTimeout(() => hb.classList.remove('flash'), 700);
+
+  // Update cycle phase + maybe trigger a milestone notification
+  renderCyclePhase(halvingProgress(block).progress);
+  maybeNotifyBlock(block);
 }
 
 function showToast(title, body) {
@@ -896,9 +904,15 @@ window.addEventListener('DOMContentLoaded', () => {
 
   // Cat clickable → meow (new hero img + legacy emoji fallback)
   const heroImg = el('heroFrame');
-  if (heroImg) heroImg.addEventListener('click', () => popMeow('happy'));
+  if (heroImg) heroImg.addEventListener('click', () => { popMeow('happy'); trackClick(); });
   const legacyEmoji = el('catFaceEmoji');
-  if (legacyEmoji) legacyEmoji.addEventListener('click', () => popMeow('happy'));
+  if (legacyEmoji) legacyEmoji.addEventListener('click', () => { popMeow('happy'); trackClick(); });
+
+  // Extras: unlock restoration, konami code, notifications, cycle phase
+  restoreUnlocks();
+  initKonami();
+  initNotifications();
+  renderCyclePhase(halvingProgress(state.currentBlock).progress);
 
   window.addEventListener('resize', () => {
     const { progress } = halvingProgress(state.currentBlock);
