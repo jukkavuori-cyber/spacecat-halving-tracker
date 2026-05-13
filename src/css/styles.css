@@ -117,7 +117,7 @@ html, body { height: 100%; overflow: hidden; background: var(--bg); color: var(-
   font-size: .47rem; white-space: nowrap; color: var(--accent-a); font-family: var(--fh); }
 
 /* Track */
-.track-col { position: relative; width: 188px; height: 100%; display: flex; flex-direction: column; align-items: center; }
+.track-col { position: relative; width: 188px; height: 100%; display: flex; flex-direction: column; align-items: center; transform: translateX(-50px); }
 .moon-wrap { position: absolute; top: 0; left: 50%; transform: translateX(-50%);
   display: flex; flex-direction: column; align-items: center; gap: 3px; z-index: 6; }
 .moon { width: 74px; height: 74px; border-radius: 50%;
@@ -248,7 +248,7 @@ html, body { height: 100%; overflow: hidden; background: var(--bg); color: var(-
 }
 
 /* ── STATS STRIP ─────────────────────────────────── */
-.stats-strip { position: absolute; right: 10px; top: 50%; transform: translateY(-50%); display: flex; flex-direction: column; gap: 8px; pointer-events: none; z-index: 20; }
+.stats-strip { position: absolute; right: 60px; top: 50%; transform: translateY(-50%); display: flex; flex-direction: column; gap: 8px; pointer-events: none; z-index: 20; }
 .scard { width: 175px; background: oklch(.09 .05 285 / .65); border: 1px solid var(--border); padding: 7px 11px 7px 14px; position: relative; overflow: hidden; backdrop-filter: blur(4px); }
 .scard::before { content: ''; position: absolute; top: 0; left: 0; width: 3px; height: 100%; background: var(--accent-a); box-shadow: 0 0 7px var(--accent-a); }
 .sl { font-size: .46rem; letter-spacing: .18em; text-transform: uppercase; color: var(--text-dim); margin-bottom: 3px; }
