@@ -12,7 +12,7 @@ export function startBlockchainRain() {
   Object.assign(canvas.style, {
     position: 'fixed',
     top: '0',
-    right: '0',
+    left: '0',
     width: '140px',
     height: '100vh',
     pointerEvents: 'none',
