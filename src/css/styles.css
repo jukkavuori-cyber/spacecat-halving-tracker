@@ -382,12 +382,12 @@ html, body { height: 100%; overflow: hidden; background: var(--bg); color: var(-
   animation: flameHot .08s ease-in-out infinite alternate;
 }
 @keyframes flamePulse {
-  0%   { transform: translateX(-50%) scaleY(1)    scaleX(1)    rotate(-1deg); opacity: 1; }
-  100% { transform: translateX(-50%) scaleY(1.18) scaleX(.86)  rotate(1deg);  opacity: .85; }
+  0%   { transform: scaleY(1)    scaleX(1)    rotate(-1deg); opacity: 1; }
+  100% { transform: scaleY(1.18) scaleX(.86)  rotate(1deg);  opacity: .85; }
 }
 @keyframes flameHot {
-  0%   { transform: translateX(-50%) scale(1);    opacity: .95; }
-  100% { transform: translateX(-50%) scale(1.25); opacity: 1; }
+  0%   { transform: scale(1);    opacity: .95; }
+  100% { transform: scale(1.25); opacity: 1; }
 }
 
 /* Sparks — small embers flying out */
