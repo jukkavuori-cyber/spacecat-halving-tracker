@@ -198,29 +198,147 @@ html, body { height: 100%; overflow: hidden; background: var(--bg); color: var(-
   filter: drop-shadow(0 -3px 5px var(--hc)); pointer-events: none; transition: border-bottom-color .5s; }
 @keyframes catfloat { 0%,100%{transform:translateY(0) rotate(-1.5deg)} 50%{transform:translateY(-9px) rotate(1.5deg)} }
 
-/* Thruster — default */
-.thruster { display: flex; flex-direction: column; align-items: center; margin-top: -2px; gap: 2px; }
-.flame { clip-path: polygon(50% 100%, 0% 0%, 100% 0%); animation: flick .12s ease-in-out infinite alternate; }
-.f1 { width: 10px; height: 24px; background: linear-gradient(to bottom, var(--accent-a), var(--accent-b), transparent); box-shadow: 0 4px 12px var(--accent-a); }
-.f2 { width:  6px; height: 16px; background: linear-gradient(to bottom, white, var(--accent-b), transparent); animation-delay: .05s; }
-@keyframes flick { from{transform:scaleY(1) scaleX(1);opacity:1} to{transform:scaleY(1.35) scaleX(.72);opacity:.8} }
+/* ── Thruster — premium rocket booster ─────────────── */
+.thruster {
+  display: flex; flex-direction: column; align-items: center;
+  margin-top: -4px; position: relative;
+  width: 36px;
+}
+
+/* Booster nozzle (metallic) */
+.nozzle { position: relative; width: 20px; height: 8px; z-index: 3; }
+.nozzle-ring {
+  position: absolute; top: 0; left: 50%; transform: translateX(-50%);
+  width: 14px; height: 3px; border-radius: 2px;
+  background: linear-gradient(to bottom,
+    oklch(.45 .05 265) 0%, oklch(.30 .05 265) 60%, oklch(.20 .05 265) 100%);
+  box-shadow:
+    0 0 4px oklch(.82 .22 195 / .35),
+    inset 0 1px 0 oklch(.7 .08 265 / .9);
+}
+.nozzle-cone {
+  position: absolute; top: 2px; left: 50%; transform: translateX(-50%);
+  width: 0; height: 0;
+  border-left: 9px solid transparent;
+  border-right: 9px solid transparent;
+  border-top: 7px solid oklch(.22 .04 265);
+  filter: drop-shadow(0 0 4px var(--hc));
+}
+.nozzle-cone::before {
+  content: '';
+  position: absolute; top: -7px; left: -8px;
+  width: 16px; height: 4px;
+  background: linear-gradient(90deg,
+    transparent, oklch(.5 .08 265 / .7), oklch(.65 .12 195 / .8),
+    oklch(.5 .08 265 / .7), transparent);
+  filter: blur(.6px);
+}
+
+/* Flame stack — layered organic flames */
+.flame-stack {
+  position: relative; width: 24px; height: 42px;
+  margin-top: -1px; z-index: 2;
+  filter: drop-shadow(0 0 8px var(--hc)) drop-shadow(0 6px 14px oklch(.82 .22 195 / .55));
+}
+.flame {
+  position: absolute; left: 50%; top: 0;
+  border-radius: 50% 50% 50% 50% / 30% 30% 70% 70%;
+  transform-origin: 50% 0%;
+  animation: flamePulse .14s ease-in-out infinite alternate;
+}
+.flame.outer {
+  width: 22px; height: 40px;
+  margin-left: -11px;
+  background: radial-gradient(ellipse at 50% 25%,
+    oklch(.85 .25 60 / .85) 0%,
+    oklch(.78 .26 30 / .70) 35%,
+    oklch(.55 .22 25 / .35) 65%,
+    transparent 100%);
+  animation-duration: .18s;
+}
+.flame.mid {
+  width: 16px; height: 32px;
+  margin-left: -8px;
+  background: radial-gradient(ellipse at 50% 25%,
+    var(--accent-a) 0%,
+    var(--accent-b) 40%,
+    oklch(.55 .25 285 / .4) 75%,
+    transparent 100%);
+  animation-duration: .12s; animation-delay: .03s;
+}
+.flame.core {
+  width: 9px; height: 22px;
+  margin-left: -4.5px;
+  background: radial-gradient(ellipse at 50% 30%,
+    rgba(255,255,255,.98) 0%,
+    var(--hc) 45%,
+    oklch(.82 .22 195 / .25) 85%,
+    transparent 100%);
+  animation-duration: .09s; animation-delay: .06s;
+}
+.flame.hotspot {
+  width: 5px; height: 11px;
+  margin-left: -2.5px; top: 1px;
+  background: radial-gradient(circle at 50% 30%,
+    #ffffff 0%, rgba(255,255,255,.85) 40%, transparent 75%);
+  animation: flameHot .08s ease-in-out infinite alternate;
+}
+@keyframes flamePulse {
+  0%   { transform: translateX(-50%) scaleY(1)    scaleX(1)    rotate(-1deg); opacity: 1; }
+  100% { transform: translateX(-50%) scaleY(1.18) scaleX(.86)  rotate(1deg);  opacity: .85; }
+}
+@keyframes flameHot {
+  0%   { transform: translateX(-50%) scale(1);    opacity: .95; }
+  100% { transform: translateX(-50%) scale(1.25); opacity: 1; }
+}
+
+/* Sparks — small embers flying out */
+.sparks {
+  position: absolute; top: 14px; left: 50%;
+  width: 32px; height: 60px; transform: translateX(-50%);
+  pointer-events: none; z-index: 1;
+}
+.spark {
+  position: absolute; top: 0; left: 50%;
+  width: 2px; height: 2px; border-radius: 50%;
+  background: radial-gradient(circle, #fff7d6 0%, oklch(.85 .22 65) 60%, transparent 100%);
+  box-shadow: 0 0 4px oklch(.85 .22 65);
+  opacity: 0;
+  animation: sparkFall 1.4s linear infinite;
+}
+.spark.s1 { animation-delay: 0s;   margin-left: -1px; --sx: -6px; --sy: 38px; }
+.spark.s2 { animation-delay: .25s; margin-left: -1px; --sx:  5px; --sy: 44px; }
+.spark.s3 { animation-delay: .55s; margin-left: -1px; --sx: -2px; --sy: 50px; }
+.spark.s4 { animation-delay: .85s; margin-left: -1px; --sx:  8px; --sy: 42px; }
+.spark.s5 { animation-delay: 1.1s; margin-left: -1px; --sx: -8px; --sy: 46px; }
+@keyframes sparkFall {
+  0%   { opacity: 0; transform: translate(0, 0) scale(.5); }
+  15%  { opacity: 1; }
+  100% { opacity: 0; transform: translate(var(--sx), var(--sy)) scale(.2); }
+}
 
 /* ── ROCKET STYLES ───────────────────────────────── */
-/* Plasma: wide, electric blue */
-.rocket-plasma .f1 { width: 15px; height: 34px; background: linear-gradient(to bottom, oklch(.7 .3 230), oklch(.82 .22 195), transparent); box-shadow: 0 0 18px oklch(.82 .22 195), 0 0 35px oklch(.7 .3 230 / .5); animation-duration: .09s !important; }
-.rocket-plasma .f2 { width: 9px; height: 22px; background: linear-gradient(to bottom, white, oklch(.82 .22 195), transparent); }
-/* Superburn: wide orange/red, roaring */
-.rocket-superburn .f1 { width: 18px; height: 48px; background: linear-gradient(to bottom, oklch(.85 .22 72), oklch(.82 .25 32), oklch(.72 .3 25), transparent); box-shadow: 0 0 22px oklch(.82 .25 32), 0 0 44px oklch(.85 .22 72 / .4); animation-duration: .07s !important; }
-.rocket-superburn .f2 { width: 11px; height: 30px; background: linear-gradient(to bottom, white, oklch(.9 .2 85), oklch(.82 .22 55), transparent); animation-duration: .07s !important; }
-/* Quantum: hue-rotating rainbow */
-.rocket-quantum .f1 { width: 12px; height: 38px; background: linear-gradient(to bottom, var(--accent-a), var(--accent-b), var(--green), transparent); animation: flick .12s ease-in-out infinite alternate, qhue 1.2s linear infinite; }
-.rocket-quantum .f2 { width: 7px; height: 22px; background: linear-gradient(to bottom, white, oklch(.82 .22 195), transparent); animation: flick .1s ease-in-out infinite alternate, qhue 1.2s linear infinite .3s; }
-@keyframes qhue { 0%{filter:hue-rotate(0deg)} 100%{filter:hue-rotate(360deg)} }
+/* Plasma: cooler electric blue, longer */
+.rocket-plasma .flame-stack { filter: drop-shadow(0 0 12px oklch(.7 .3 230)) drop-shadow(0 6px 18px oklch(.82 .22 195 / .55)); }
+.rocket-plasma .flame.outer { background: radial-gradient(ellipse at 50% 25%, oklch(.85 .25 220 / .8), oklch(.7 .28 230 / .5) 40%, transparent 100%); height: 48px; }
+.rocket-plasma .flame.mid   { background: radial-gradient(ellipse at 50% 25%, oklch(.82 .22 195) 0%, oklch(.7 .25 220) 45%, transparent 100%); }
+.rocket-plasma .flame.core  { background: radial-gradient(ellipse at 50% 30%, #fff 0%, oklch(.85 .25 220) 50%, transparent 100%); }
 
-/* Speed boost: bigger flames, extra glow */
-.speed-boost .f1 { height: 44px !important; box-shadow: 0 0 24px var(--accent-b), 0 0 44px var(--accent-a) !important; animation-duration: .07s !important; }
-.speed-boost .f2 { height: 28px !important; }
-.speed-boost .helmet { box-shadow: 0 0 22px var(--hc), 0 0 48px var(--accent-a) !important; }
+/* Superburn: wide orange/red, roaring */
+.rocket-superburn .flame-stack { filter: drop-shadow(0 0 14px oklch(.85 .22 60)) drop-shadow(0 8px 22px oklch(.7 .25 35 / .65)); }
+.rocket-superburn .flame.outer { background: radial-gradient(ellipse at 50% 25%, oklch(.85 .22 72 / .9), oklch(.7 .27 32 / .6) 40%, transparent 100%); height: 56px; width: 26px; margin-left: -13px; }
+.rocket-superburn .flame.mid   { background: radial-gradient(ellipse at 50% 25%, oklch(.85 .25 50), oklch(.75 .28 25) 45%, transparent 100%); height: 40px; }
+.rocket-superburn .flame.core  { background: radial-gradient(ellipse at 50% 30%, #fff, oklch(.9 .2 75) 45%, transparent 100%); height: 28px; }
+.rocket-superburn .flame { animation-duration: .08s !important; }
+
+/* Quantum: hue-rotating rainbow */
+.rocket-quantum .flame-stack { animation: qhue 1.4s linear infinite; }
+@keyframes qhue { 0%{filter: drop-shadow(0 0 8px var(--hc)) hue-rotate(0deg)} 100%{filter: drop-shadow(0 0 8px var(--hc)) hue-rotate(360deg)} }
+
+/* Speed boost: bigger flames + extra sparks */
+.speed-boost .flame-stack { transform: scaleY(1.4); transform-origin: top center; }
+.speed-boost .sparks { opacity: 1.5; }
+.speed-boost .hero { filter: drop-shadow(0 0 14px var(--hc)) drop-shadow(0 0 28px var(--accent-a)) !important; }
 
 /* Trail dots */
 .tdot { position: absolute; left: 50%; transform: translateX(-50%); border-radius: 50%;
