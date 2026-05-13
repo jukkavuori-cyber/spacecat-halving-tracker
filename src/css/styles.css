@@ -198,12 +198,25 @@ html, body { height: 100%; overflow: hidden; background: var(--bg); color: var(-
   filter: drop-shadow(0 -3px 5px var(--hc)); pointer-events: none; transition: border-bottom-color .5s; }
 @keyframes catfloat { 0%,100%{transform:translateY(0) rotate(-1.5deg)} 50%{transform:translateY(-9px) rotate(1.5deg)} }
 
-/* ── Thruster — premium rocket booster ─────────────── */
+/* ── Dual-foot thrusters ───────────────────────────── */
+.thrusters {
+  display: flex; justify-content: center; align-items: flex-start;
+  gap: 16px; margin-top: -8px; position: relative;
+}
 .thruster {
   display: flex; flex-direction: column; align-items: center;
-  margin-top: -4px; position: relative;
-  width: 36px;
+  position: relative; width: 24px;
 }
+/* Subtle asymmetric flicker offsets so the two engines don't sync */
+.thruster.left  .flame.outer { animation-delay: 0s; }
+.thruster.left  .flame.mid   { animation-delay: .03s; }
+.thruster.left  .flame.core  { animation-delay: .07s; }
+.thruster.right .flame.outer { animation-delay: .04s; }
+.thruster.right .flame.mid   { animation-delay: .08s; }
+.thruster.right .flame.core  { animation-delay: .11s; }
+.thruster.right .spark.s1    { animation-delay: .15s; }
+.thruster.right .spark.s2    { animation-delay: .45s; }
+.thruster.right .spark.s3    { animation-delay: .75s; }
 
 /* Booster nozzle (metallic) */
 .nozzle { position: relative; width: 20px; height: 8px; z-index: 3; }
