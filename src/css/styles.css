@@ -164,6 +164,7 @@ html, body { height: 100%; overflow: hidden; background: var(--bg); color: var(-
   width: 96px; height: auto;
   display: block;
   cursor: pointer;
+  position: relative; left: -5px; /* nudge so feet align with centered thrusters */
   filter:
     drop-shadow(0 0 10px var(--hc))
     drop-shadow(0 0 22px oklch(.82 .22 195 / .28))
