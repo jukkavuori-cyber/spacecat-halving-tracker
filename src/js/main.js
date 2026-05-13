@@ -339,24 +339,40 @@ function synthChirp(ctx, t0, { vol = 0.38 } = {}) {
   synthMeow(ctx, t0 + 0.42, { vol: 0.28, dur: 0.65, baseFreq: 420, peakFreq: 780, pitch: 1 });
 }
 
+// Real meow audio — alternates between two recordings so it doesn't feel repetitive
+const MEOW_FILES = ['/meow1.mp3', '/meow2.mp3'];
+const meowPool = MEOW_FILES.map(src => {
+  const a = new Audio(src);
+  a.preload = 'auto';
+  return a;
+});
+let lastMeowIdx = -1;
+
 function playMeow(type = 'gentle') {
   if (!catState.meowEnabled) return;
-  try {
-    const AC = window.AudioContext || window.webkitAudioContext;
-    if (!AC) return;
-    const ctx = new AC();
-    const now = ctx.currentTime;
 
-    if (type === 'excited') {
-      // Uusi lohko — chirp + miau!
-      synthChirp(ctx, now, { vol: 0.38 });
-    } else if (type === 'happy') {
-      // Klikkaus — täyteläinen miau
-      synthMeow(ctx, now, { vol: 0.32, dur: 0.88, baseFreq: 380, peakFreq: 700 });
-    } else {
-      // Gentle — hiljainen pehmeä miu
-      synthMeow(ctx, now, { vol: 0.18, dur: 0.65, baseFreq: 320, peakFreq: 580, pitch: 0.95 });
-    }
+  // 'excited' = new block → keep synth chirp (distinct from click meow)
+  if (type === 'excited') {
+    try {
+      const AC = window.AudioContext || window.webkitAudioContext;
+      if (!AC) return;
+      const ctx = new AC();
+      synthChirp(ctx, ctx.currentTime, { vol: 0.38 });
+    } catch {}
+    return;
+  }
+
+  // 'happy' / 'gentle' → play real meow, alternating to avoid repetition
+  try {
+    let idx;
+    do { idx = Math.floor(Math.random() * meowPool.length); }
+    while (meowPool.length > 1 && idx === lastMeowIdx);
+    lastMeowIdx = idx;
+
+    const a = meowPool[idx];
+    a.currentTime = 0;
+    a.volume = type === 'happy' ? 0.85 : 0.55;
+    a.play().catch(() => {});
   } catch {}
 }
 
