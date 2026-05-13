@@ -1,4 +1,43 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
-  <rect width="64" height="64" rx="14" fill="#02020e"/>
-  <text x="32" y="46" font-size="38" text-anchor="middle">🐱</text>
+  <defs>
+    <radialGradient id="bg" cx="50%" cy="40%" r="70%">
+      <stop offset="0%"  stop-color="#5028b8"/>
+      <stop offset="60%" stop-color="#1a0838"/>
+      <stop offset="100%" stop-color="#02020e"/>
+    </radialGradient>
+    <linearGradient id="ear" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%"  stop-color="#a066ff"/>
+      <stop offset="100%" stop-color="#6a44d4"/>
+    </linearGradient>
+    <filter id="glow"><feGaussianBlur stdDeviation="1.4"/></filter>
+  </defs>
+  <!-- Cosmic disk -->
+  <circle cx="32" cy="32" r="31" fill="url(#bg)"/>
+  <!-- Cyan rim -->
+  <circle cx="32" cy="32" r="30.5" fill="none" stroke="#40c8e0" stroke-width="1.2" opacity="0.9"/>
+  <!-- Stars -->
+  <circle cx="12" cy="14" r=".9" fill="#ffffff" opacity=".95"/>
+  <circle cx="50" cy="18" r=".7" fill="#aaddff" opacity=".9"/>
+  <circle cx="18" cy="46" r=".7" fill="#ffffff" opacity=".75"/>
+  <circle cx="48" cy="50" r=".9" fill="#aaddff" opacity=".9"/>
+  <!-- Cat ears -->
+  <path d="M21 30 L24 20 L29 28 Z" fill="url(#ear)"/>
+  <path d="M43 30 L40 20 L35 28 Z" fill="url(#ear)"/>
+  <!-- Inner ear -->
+  <path d="M23 28 L24.5 24 L27 27.5 Z" fill="#ffa6d4" opacity=".7"/>
+  <path d="M41 28 L39.5 24 L37 27.5 Z" fill="#ffa6d4" opacity=".7"/>
+  <!-- Helmet glass dome -->
+  <ellipse cx="32" cy="38" rx="13" ry="12" fill="#0a0a1a" opacity=".55"/>
+  <ellipse cx="32" cy="38" rx="13" ry="12" fill="none" stroke="#40c8e0" stroke-width="1.6"/>
+  <!-- Eyes -->
+  <circle cx="27.5" cy="37" r="1.8" fill="#f8c84d"/>
+  <circle cx="36.5" cy="37" r="1.8" fill="#f8c84d"/>
+  <circle cx="27.6" cy="36.6" r=".7" fill="#02020e"/>
+  <circle cx="36.6" cy="36.6" r=".7" fill="#02020e"/>
+  <!-- Nose + smile -->
+  <path d="M31 41 L32 42 L33 41 Z" fill="#ff95b0"/>
+  <path d="M30 43 Q32 45 34 43" stroke="#02020e" stroke-width="0.7" fill="none" stroke-linecap="round"/>
+  <!-- Bitcoin badge -->
+  <circle cx="32" cy="54" r="5.5" fill="#e0a020" stroke="#02020e" stroke-width=".6"/>
+  <text x="32" y="56.6" text-anchor="middle" font-family="Arial,Helvetica,sans-serif" font-weight="900" font-size="7" fill="#ffffff">₿</text>
 </svg>
