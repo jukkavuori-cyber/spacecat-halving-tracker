@@ -351,18 +351,7 @@ let lastMeowIdx = -1;
 function playMeow(type = 'gentle') {
   if (!catState.meowEnabled) return;
 
-  // 'excited' = new block → keep synth chirp (distinct from click meow)
-  if (type === 'excited') {
-    try {
-      const AC = window.AudioContext || window.webkitAudioContext;
-      if (!AC) return;
-      const ctx = new AC();
-      synthChirp(ctx, ctx.currentTime, { vol: 0.38 });
-    } catch {}
-    return;
-  }
-
-  // 'happy' / 'gentle' → play real meow, alternating to avoid repetition
+  // All meow types now use real audio, alternating between samples
   try {
     let idx;
     do { idx = Math.floor(Math.random() * meowPool.length); }
@@ -371,7 +360,7 @@ function playMeow(type = 'gentle') {
 
     const a = meowPool[idx];
     a.currentTime = 0;
-    a.volume = type === 'happy' ? 0.85 : 0.55;
+    a.volume = type === 'excited' ? 0.95 : (type === 'happy' ? 0.85 : 0.55);
     a.play().catch(() => {});
   } catch {}
 }
