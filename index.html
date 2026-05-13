@@ -120,15 +120,19 @@
       <div class="cat-wrapper" id="catWrapper">
         <div id="meowBubble" class="meow-bubble">miu~</div>
         <div id="catInner">
-          <div class="helmet" id="spacecatChar" title="Click me! 🐾">
-            <span id="catFaceEmoji">🐱</span>
-            <span class="ear-r"></span>
-          </div>
+          <img id="heroFrame" class="hero" src="/hero/frame1.png" alt="SpaceCat astronaut" title="Click me! 🐾" />
           <div class="thruster">
             <div class="flame f1"></div>
             <div class="flame f2"></div>
           </div>
         </div>
+      </div>
+
+      <!-- Preload hero frames -->
+      <div style="display:none;position:absolute;">
+        <img src="/hero/frame2.png" alt="" /><img src="/hero/frame3.png" alt="" />
+        <img src="/hero/frame4.png" alt="" /><img src="/hero/frame5.png" alt="" />
+        <img src="/hero/frame6.png" alt="" />
       </div>
 
       <div class="launchpad">
@@ -293,18 +297,6 @@
     </div>
   </div>
 
-  <!-- Cat face -->
-  <div class="tw-section">
-    <div class="tw-label">Cat Face</div>
-    <div class="tw-row">
-      <button class="face-btn active" data-face="🐱" onclick="setCatFace('🐱')">🐱</button>
-      <button class="face-btn" data-face="😸" onclick="setCatFace('😸')">😸</button>
-      <button class="face-btn" data-face="😼" onclick="setCatFace('😼')">😼</button>
-      <button class="face-btn" data-face="🙀" onclick="setCatFace('🙀')">🙀</button>
-      <button class="face-btn" data-face="😺" onclick="setCatFace('😺')">😺</button>
-      <button class="face-btn" data-face="🐈" onclick="setCatFace('🐈')">🐈</button>
-    </div>
-  </div>
 
   <!-- Helmet color -->
   <div class="tw-section">

@@ -360,6 +360,31 @@ function playMeow(type = 'gentle') {
   } catch {}
 }
 
+// Hero frame animation: 1 → 2 → 3 → 4 → 5 → 6 → 1 (idle)
+const HERO_FRAMES = [
+  '/hero/frame1.png','/hero/frame2.png','/hero/frame3.png',
+  '/hero/frame4.png','/hero/frame5.png','/hero/frame6.png'
+];
+const HERO_DURATIONS = [80, 100, 360, 240, 140, 120]; // ms per frame (linger on SPEAK/HOLD)
+let heroAnimating = false;
+function animateHeroMeow() {
+  const hero = el('heroFrame');
+  if (!hero || heroAnimating) return;
+  heroAnimating = true;
+  let i = 0;
+  const step = () => {
+    if (i >= HERO_FRAMES.length) {
+      hero.src = HERO_FRAMES[0];
+      heroAnimating = false;
+      return;
+    }
+    hero.src = HERO_FRAMES[i];
+    setTimeout(step, HERO_DURATIONS[i]);
+    i++;
+  };
+  step();
+}
+
 function popMeow(soundType = 'gentle') {
   playMeow(soundType);
   const bubble = el('meowBubble');
@@ -368,6 +393,7 @@ function popMeow(soundType = 'gentle') {
   void bubble.offsetWidth;
   bubble.classList.add('pop');
   setTimeout(() => bubble.classList.remove('pop'), 1400);
+  animateHeroMeow();
 }
 
 // ── CAT THEMES ────────────────────────────────────────────────────────────────
@@ -387,7 +413,8 @@ window.setHelmetColor = color => {
 
 window.setCatFace = face => {
   catState.face = face;
-  el('catFaceEmoji').textContent = face;
+  const legacy = el('catFaceEmoji');
+  if (legacy) legacy.textContent = face;
   document.querySelectorAll('.face-btn').forEach(b => b.classList.toggle('active', b.dataset.face === face));
   popMeow('gentle');
 };
@@ -859,8 +886,11 @@ window.addEventListener('DOMContentLoaded', () => {
     window.open(`https://mempool.space/block-height/${state.currentBlock}`, '_blank', 'noopener')
   );
 
-  // Cat clickable → meow
-  el('catFaceEmoji').addEventListener('click', () => popMeow('happy'));
+  // Cat clickable → meow (new hero img + legacy emoji fallback)
+  const heroImg = el('heroFrame');
+  if (heroImg) heroImg.addEventListener('click', () => popMeow('happy'));
+  const legacyEmoji = el('catFaceEmoji');
+  if (legacyEmoji) legacyEmoji.addEventListener('click', () => popMeow('happy'));
 
   window.addEventListener('resize', () => {
     const { progress } = halvingProgress(state.currentBlock);

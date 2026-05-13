@@ -159,7 +159,24 @@ html, body { height: 100%; overflow: hidden; background: var(--bg); color: var(-
   100%{ transform: translateY(0) rotate(0deg) scale(1); }
 }
 
-/* Helmet uses --hc for color */
+/* New hero PNG (replaces helmet) */
+.hero {
+  width: 96px; height: auto;
+  display: block;
+  cursor: pointer;
+  filter:
+    drop-shadow(0 0 10px var(--hc))
+    drop-shadow(0 0 22px oklch(.82 .22 195 / .28))
+    drop-shadow(0 4px 10px oklch(.05 0 0 / .55));
+  animation: catfloat 3s ease-in-out infinite;
+  transition: filter .5s, transform .15s;
+  -webkit-user-drag: none; user-select: none;
+}
+.hero:hover { transform: scale(1.05); }
+.hero:active { transform: scale(.96); }
+@media (max-width: 768px) { .hero { width: 78px; } }
+
+/* Legacy helmet (kept for compat, hidden when hero is active) */
 .helmet {
   width: 68px; height: 68px; border-radius: 50%;
   border: 2px solid var(--hc);
