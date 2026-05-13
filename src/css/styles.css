@@ -199,6 +199,68 @@ html, body { height: 100%; overflow: hidden; background: var(--bg); color: var(-
   filter: drop-shadow(0 -3px 5px var(--hc)); pointer-events: none; transition: border-bottom-color .5s; }
 @keyframes catfloat { 0%,100%{transform:translateY(0) rotate(-1.5deg)} 50%{transform:translateY(-9px) rotate(1.5deg)} }
 
+/* ── Live data: Recent Blocks + Mining Pools ──────── */
+.live-data-wrap {
+  display: grid; grid-template-columns: 1fr 1fr; gap: 10px;
+  margin-top: 12px;
+}
+.live-col {
+  background: oklch(.075 .04 265 / .55);
+  border: 1px solid oklch(.4 .1 285 / .25);
+  padding: 12px 14px;
+  border-radius: 0;
+  position: relative;
+}
+.live-col::before {
+  content: ''; position: absolute; top: 0; left: 0; width: 3px; height: 100%;
+  background: var(--accent-a); box-shadow: 0 0 6px var(--accent-a);
+}
+.lc-title {
+  font-family: var(--fh); font-weight: 700; font-size: .72rem;
+  letter-spacing: .08em; color: var(--text); margin-bottom: 10px;
+  display: flex; align-items: center; gap: 8px;
+}
+.lc-sub {
+  font-family: var(--ft); font-size: .5rem; letter-spacing: .14em;
+  color: var(--text-dim); text-transform: uppercase; font-weight: 400;
+}
+.rb-placeholder { color: var(--text-dim); font-size: .65rem; font-style: italic; padding: 4px 0; }
+
+/* Recent blocks list */
+.recent-blocks { list-style: none; padding: 0; margin: 0; display: flex; flex-direction: column; gap: 3px; }
+.recent-blocks li {
+  display: grid; grid-template-columns: auto 1fr auto auto; align-items: center;
+  gap: 10px; padding: 5px 8px; font-size: .62rem;
+  background: oklch(.06 .03 265 / .4);
+  border-left: 2px solid transparent;
+  transition: border-color .3s, background .3s;
+}
+.recent-blocks li.new { border-left-color: var(--green); background: oklch(.7 .2 145 / .08); }
+.rb-h { font-family: var(--fh); color: var(--accent-a); font-weight: 700; font-size: .66rem; }
+.rb-hash { font-family: var(--ft); color: var(--text-dim); font-size: .55rem; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.rb-pool { color: var(--text); font-size: .58rem; }
+.rb-age  { color: var(--text-dim); font-size: .55rem; font-family: var(--ft); }
+
+/* Mining pool list */
+.pool-list { display: flex; flex-direction: column; gap: 4px; }
+.pool-row {
+  display: grid; grid-template-columns: 1fr auto; gap: 8px; align-items: center;
+  padding: 4px 8px; font-size: .62rem; position: relative;
+  background: oklch(.06 .03 265 / .4);
+}
+.pool-row .pool-bar {
+  position: absolute; left: 0; top: 0; bottom: 0;
+  background: linear-gradient(90deg, var(--accent-a) 0%, oklch(.65 .25 285 / .45) 100%);
+  z-index: 0; opacity: .35;
+}
+.pool-row > * { position: relative; z-index: 1; }
+.pool-name { color: var(--text); font-weight: 600; }
+.pool-pct  { font-family: var(--fh); color: var(--gold); font-size: .66rem; font-weight: 700; }
+
+@media (max-width: 768px) {
+  .live-data-wrap { grid-template-columns: 1fr; }
+}
+
 /* ── Cycle phase chip ─────────────────────────────── */
 .cycle-phase .cp-emoji { font-size: .82rem; margin-right: 4px; }
 .cycle-phase .cp-name  { font-family: var(--fh); font-weight: 700; font-size: .72rem; letter-spacing: .06em; }

@@ -8,6 +8,7 @@ import {
   trackClick, restoreUnlocks, initKonami,
   renderCyclePhase, initNotifications, maybeNotifyBlock,
 } from './extras.js';
+import { startLiveData, refreshRecentBlocks } from './live-data.js';
 
 const LAST_HALVING   = 840_000;
 const NEXT_HALVING   = 1_050_000;
@@ -246,6 +247,8 @@ function onNewBlock(block) {
   // Update cycle phase + maybe trigger a milestone notification
   renderCyclePhase(halvingProgress(block).progress);
   maybeNotifyBlock(block);
+  // Refresh the recent-blocks list so the new block shows up immediately
+  refreshRecentBlocks();
 }
 
 function showToast(title, body) {
@@ -908,11 +911,12 @@ window.addEventListener('DOMContentLoaded', () => {
   const legacyEmoji = el('catFaceEmoji');
   if (legacyEmoji) legacyEmoji.addEventListener('click', () => { popMeow('happy'); trackClick(); });
 
-  // Extras: unlock restoration, konami code, notifications, cycle phase
+  // Extras: unlock restoration, konami code, notifications, cycle phase, live data
   restoreUnlocks();
   initKonami();
   initNotifications();
   renderCyclePhase(halvingProgress(state.currentBlock).progress);
+  startLiveData();
 
   window.addEventListener('resize', () => {
     const { progress } = halvingProgress(state.currentBlock);
