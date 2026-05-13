@@ -1,80 +1,132 @@
 #!/usr/bin/env python3
-"""Generate full favicon set themed for SpaceCat."""
-from PIL import Image, ImageDraw, ImageFilter
-import os
+"""Generate full favicon set.
+Simple, high-contrast design that stays readable at 16x16."""
+from PIL import Image, ImageDraw, ImageFont, ImageFilter
+import os, math
 
 PUBLIC = "/Users/macmini/SpaceCat/public"
-HERO = os.path.join(PUBLIC, "hero", "frame1.png")
 os.makedirs(PUBLIC, exist_ok=True)
 
-# ── Theme colors ────────────────────────────────────────────────────────────
-BG_DARK    = (2, 2, 14, 255)
-ACCENT     = (160, 100, 255, 255)   # purple
-CYAN       = (64, 200, 224, 255)    # cyan
-GOLD       = (224, 160, 32, 255)    # bitcoin gold
+# Try to find a bold font that supports ₿
+FONT_CANDIDATES = [
+    "/System/Library/Fonts/Supplemental/Arial Black.ttf",
+    "/System/Library/Fonts/Supplemental/Arial Bold.ttf",
+    "/System/Library/Fonts/Helvetica.ttc",
+    "/Library/Fonts/Arial Black.ttf",
+]
+def draw_btc_symbol(draw_canvas, img, cx, cy, size, color):
+    """Draw a ₿ symbol centered at (cx, cy) using a font-rendered 'B' + two
+    extending vertical strokes (the ₿ tells) on top and bottom.
+    Font-independent: works even when the system font lacks U+20BF."""
+    # Pick best available font that renders a clean bold B
+    font_size = int(size * 1.1)
+    font = find_font(font_size)
 
-def make_cosmic_bg(size):
-    """Circular cosmic background with radial gradient."""
-    img = Image.new("RGBA", (size, size), (0, 0, 0, 0))
-    draw = ImageDraw.Draw(img)
-    cx, cy = size / 2, size / 2
-    r = size / 2
+    # Use the regular B letter (always available)
+    text = "B"
+    bbox = draw_canvas.textbbox((0, 0), text, font=font)
+    tw = bbox[2] - bbox[0]
+    th = bbox[3] - bbox[1]
+    tx = cx - tw / 2 - bbox[0]
+    ty = cy - th / 2 - bbox[1]
+    draw_canvas.text((tx, ty), text, font=font, fill=color)
 
-    # Radial gradient from center (lighter purple) → outer (deep navy)
-    for i in range(int(r), 0, -1):
-        t = 1 - (i / r)  # 0 at edge → 1 at center
-        rr = int(20 + (90 * t))
-        gg = int(10 + (35 * t))
-        bb = int(50 + (170 * t))
-        draw.ellipse([cx - i, cy - i, cx + i, cy + i], fill=(rr, gg, bb, 255))
+    # Add two vertical strokes top and bottom (turning B → ₿)
+    # Stroke widths/positions calibrated to look natural with bold B
+    bar_w = max(2, size * 0.07)
+    bar_h = size * 0.18
+    # The two strokes should be inside the width of the B, near the left vertical
+    bar_x1 = cx - size * 0.20
+    bar_x2 = cx - size * 0.02
+    # Top
+    draw_canvas.rectangle([bar_x1 - bar_w / 2, cy - size / 2 - bar_h * 0.55,
+                            bar_x1 + bar_w / 2, cy - size / 2 + bar_h * 0.45], fill=color)
+    draw_canvas.rectangle([bar_x2 - bar_w / 2, cy - size / 2 - bar_h * 0.55,
+                            bar_x2 + bar_w / 2, cy - size / 2 + bar_h * 0.45], fill=color)
+    # Bottom
+    draw_canvas.rectangle([bar_x1 - bar_w / 2, cy + size / 2 - bar_h * 0.45,
+                            bar_x1 + bar_w / 2, cy + size / 2 + bar_h * 0.55], fill=color)
+    draw_canvas.rectangle([bar_x2 - bar_w / 2, cy + size / 2 - bar_h * 0.45,
+                            bar_x2 + bar_w / 2, cy + size / 2 + bar_h * 0.55], fill=color)
 
-    # Outer ring (cyan glow)
-    ring_w = max(2, size // 32)
-    for i in range(ring_w):
-        alpha = int(255 * (1 - i / ring_w))
-        draw.ellipse(
-            [i, i, size - 1 - i, size - 1 - i],
-            outline=(64, 200, 224, alpha),
-            width=1
-        )
 
-    # Tiny stars
-    import random
-    random.seed(42)
-    for _ in range(max(2, size // 24)):
-        sx, sy = random.uniform(0, size), random.uniform(0, size)
-        # Only inside circle
-        if (sx - cx) ** 2 + (sy - cy) ** 2 < (r - 4) ** 2:
-            s = random.choice([1, 1, 1, 2])
-            draw.ellipse([sx, sy, sx + s, sy + s], fill=(255, 255, 255, 220))
-
-    return img
+def find_font(size):
+    for p in FONT_CANDIDATES:
+        if os.path.exists(p):
+            try: return ImageFont.truetype(p, size)
+            except Exception: pass
+    return ImageFont.load_default()
 
 def make_favicon(size):
-    """Compose a favicon at the given size."""
-    bg = make_cosmic_bg(size)
-    hero = Image.open(HERO).convert("RGBA")
-    # Crop hero to head/torso (top 55%)
-    hw, hh = hero.size
-    head_crop = hero.crop((0, 0, hw, int(hh * 0.62)))
-    # Scale hero to fit ~78% of canvas height
-    target_h = int(size * 0.82)
-    ratio = target_h / head_crop.size[1]
-    target_w = int(head_crop.size[0] * ratio)
-    head = head_crop.resize((target_w, target_h), Image.LANCZOS)
-    # Center horizontally, anchor slightly above center
-    paste_x = (size - target_w) // 2
-    paste_y = int(size * 0.10)
-    bg.paste(head, (paste_x, paste_y), head)
+    """Render the simple SpaceCat favicon at the given pixel size."""
+    # Render at 4x then downscale for crisp edges
+    SS = 4
+    s = size * SS
+    img = Image.new("RGBA", (s, s), (0, 0, 0, 0))
+    draw = ImageDraw.Draw(img)
 
-    # Mask to circle for clean edges
-    mask = Image.new("L", (size, size), 0)
-    ImageDraw.Draw(mask).ellipse([0, 0, size, size], fill=255)
-    out = Image.new("RGBA", (size, size), (0, 0, 0, 0))
-    out.paste(bg, (0, 0), mask)
+    cx, cy = s / 2, s / 2
+    r = s / 2 - 1
+
+    # Cosmic gradient disc
+    for i in range(int(r), 0, -1):
+        t = 1 - (i / r)
+        # purple center → deep navy edge
+        rr = int(20 + 90 * t)
+        gg = int(8 + 30 * t)
+        bb = int(50 + 180 * t)
+        draw.ellipse([cx - i, cy - i, cx + i, cy + i], fill=(rr, gg, bb, 255))
+
+    # Cyan rim
+    rim_w = max(SS, s // 32)
+    for i in range(rim_w):
+        a = int(255 * (1 - i / rim_w))
+        draw.ellipse(
+            [i, i, s - 1 - i, s - 1 - i],
+            outline=(64, 200, 224, a),
+            width=SS,
+        )
+
+    # BOLD cat ears — left & right triangles at top
+    # Scale ear coordinates from 64x64 SVG viewBox
+    def scale(p):
+        x, y = p
+        return (x / 64 * s, y / 64 * s)
+
+    left_ear  = [scale((16, 22)), scale((23, 6)),  scale((30, 22))]
+    right_ear = [scale((48, 22)), scale((41, 6)),  scale((34, 22))]
+    for tri in (left_ear, right_ear):
+        draw.polygon(tri, fill=(10, 10, 26, 255), outline=(64, 200, 224, 255))
+
+    # Bitcoin disc (gold)
+    bc_cx, bc_cy = scale((32, 36))
+    bc_r = (16 / 64) * s
+    # Gold gradient via two ellipses with mask
+    gold_top, gold_bot = (255, 211, 90), (214, 138, 24)
+    for i in range(int(bc_r), 0, -1):
+        t = i / bc_r
+        rr = int(gold_top[0] * t + gold_bot[0] * (1 - t))
+        gg = int(gold_top[1] * t + gold_bot[1] * (1 - t))
+        bbc = int(gold_top[2] * t + gold_bot[2] * (1 - t))
+        y_offset = (bc_r - i) * .6
+        draw.ellipse(
+            [bc_cx - i, bc_cy - i + y_offset * .5, bc_cx + i, bc_cy + i + y_offset * .5],
+            fill=(rr, gg, bbc, 255),
+        )
+    # Disc outline
+    draw.ellipse(
+        [bc_cx - bc_r, bc_cy - bc_r, bc_cx + bc_r, bc_cy + bc_r],
+        outline=(10, 10, 26, 255), width=max(SS, int(bc_r * 0.06)),
+    )
+
+    # Bitcoin ₿ symbol — font B + manual vertical strokes
+    draw_btc_symbol(draw, img, bc_cx, bc_cy, bc_r * 1.2, (10, 10, 26, 255))
+
+    # Downscale with antialiasing
+    out = img.resize((size, size), Image.LANCZOS)
     return out
 
-# ── Generate all PNG sizes ──────────────────────────────────────────────────
+# ── Generate all sizes ──────────────────────────────────────────────────────
 SIZES = {
     "favicon-16x16.png": 16,
     "favicon-32x32.png": 32,
@@ -92,7 +144,7 @@ for name, size in SIZES.items():
     img.save(path, "PNG", optimize=True)
     print(f"  → {name} ({size}×{size})")
 
-# ── Multi-resolution ICO ────────────────────────────────────────────────────
+# Multi-resolution ICO
 ico_sizes = [(16, 16), (32, 32), (48, 48)]
 imgs = [make_favicon(s[0]) for s in ico_sizes]
 imgs[0].save(
@@ -102,55 +154,5 @@ imgs[0].save(
     append_images=imgs[1:],
 )
 print("  → favicon.ico (16,32,48)")
-
-# ── Updated SVG (themed, vector-only for sharpest small sizes) ──────────────
-svg = """<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
-  <defs>
-    <radialGradient id="bg" cx="50%" cy="40%" r="70%">
-      <stop offset="0%"  stop-color="#5028b8"/>
-      <stop offset="60%" stop-color="#1a0838"/>
-      <stop offset="100%" stop-color="#02020e"/>
-    </radialGradient>
-    <linearGradient id="ear" x1="0%" y1="0%" x2="0%" y2="100%">
-      <stop offset="0%"  stop-color="#a066ff"/>
-      <stop offset="100%" stop-color="#6a44d4"/>
-    </linearGradient>
-    <filter id="glow"><feGaussianBlur stdDeviation="1.4"/></filter>
-  </defs>
-  <!-- Cosmic disk -->
-  <circle cx="32" cy="32" r="31" fill="url(#bg)"/>
-  <!-- Cyan rim -->
-  <circle cx="32" cy="32" r="30.5" fill="none" stroke="#40c8e0" stroke-width="1.2" opacity="0.9"/>
-  <!-- Stars -->
-  <circle cx="12" cy="14" r=".9" fill="#ffffff" opacity=".95"/>
-  <circle cx="50" cy="18" r=".7" fill="#aaddff" opacity=".9"/>
-  <circle cx="18" cy="46" r=".7" fill="#ffffff" opacity=".75"/>
-  <circle cx="48" cy="50" r=".9" fill="#aaddff" opacity=".9"/>
-  <!-- Cat ears -->
-  <path d="M21 30 L24 20 L29 28 Z" fill="url(#ear)"/>
-  <path d="M43 30 L40 20 L35 28 Z" fill="url(#ear)"/>
-  <!-- Inner ear -->
-  <path d="M23 28 L24.5 24 L27 27.5 Z" fill="#ffa6d4" opacity=".7"/>
-  <path d="M41 28 L39.5 24 L37 27.5 Z" fill="#ffa6d4" opacity=".7"/>
-  <!-- Helmet glass dome -->
-  <ellipse cx="32" cy="38" rx="13" ry="12" fill="#0a0a1a" opacity=".55"/>
-  <ellipse cx="32" cy="38" rx="13" ry="12" fill="none" stroke="#40c8e0" stroke-width="1.6"/>
-  <!-- Eyes -->
-  <circle cx="27.5" cy="37" r="1.8" fill="#f8c84d"/>
-  <circle cx="36.5" cy="37" r="1.8" fill="#f8c84d"/>
-  <circle cx="27.6" cy="36.6" r=".7" fill="#02020e"/>
-  <circle cx="36.6" cy="36.6" r=".7" fill="#02020e"/>
-  <!-- Nose + smile -->
-  <path d="M31 41 L32 42 L33 41 Z" fill="#ff95b0"/>
-  <path d="M30 43 Q32 45 34 43" stroke="#02020e" stroke-width="0.7" fill="none" stroke-linecap="round"/>
-  <!-- Bitcoin badge -->
-  <circle cx="32" cy="54" r="5.5" fill="#e0a020" stroke="#02020e" stroke-width=".6"/>
-  <text x="32" y="56.6" text-anchor="middle" font-family="Arial,Helvetica,sans-serif" font-weight="900" font-size="7" fill="#ffffff">₿</text>
-</svg>
-"""
-
-with open(os.path.join(PUBLIC, "favicon.svg"), "w") as f:
-    f.write(svg)
-print("  → favicon.svg (themed)")
 
 print("Done.")
