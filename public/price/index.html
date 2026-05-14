@@ -1,0 +1,638 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>BTC Price Tracker — SpaceCat</title>
+<meta name="description" content="Live Bitcoin price tracker with multi-timeframe charts, BTC dominance, hashrate, Fear &amp; Greed and cycle comparisons. Real-time data, beautifully visualized." />
+<meta name="theme-color" content="#02020e" />
+<link rel="canonical" href="https://spacecat.academy/price/" />
+
+<!-- Favicons -->
+<link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png" />
+<link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png" />
+
+<!-- Open Graph -->
+<meta property="og:type" content="website" />
+<meta property="og:url" content="https://spacecat.academy/price/" />
+<meta property="og:title" content="BTC Price Tracker — SpaceCat" />
+<meta property="og:description" content="Live Bitcoin price tracker with multi-timeframe charts, dominance, hashrate, Fear &amp; Greed and cycle comparisons." />
+<meta property="og:image" content="https://spacecat.academy/og-image.png" />
+<meta name="twitter:card" content="summary_large_image" />
+
+<!-- JSON-LD -->
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "WebApplication",
+  "name": "SpaceCat BTC Price Tracker",
+  "url": "https://spacecat.academy/price/",
+  "description": "Live Bitcoin price tracker with multi-timeframe charts, BTC dominance, hashrate, Fear & Greed and cycle comparisons.",
+  "applicationCategory": "FinanceApplication",
+  "operatingSystem": "All",
+  "offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD" }
+}
+</script>
+
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;600;700;900&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet" />
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.2/dist/chart.umd.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chartjs-adapter-date-fns@3.0.0/dist/chartjs-adapter-date-fns.bundle.min.js"></script>
+<style>
+  :root {
+    --bg: #02020e;
+    --surface: oklch(.085 .05 265 / .85);
+    --surface-2: oklch(.075 .04 265 / .92);
+    --border: oklch(.4 .1 285 / .25);
+    --border-hi: oklch(.55 .15 285 / .55);
+    --text: #e8e8ff;
+    --text-dim: oklch(.55 .08 265);
+    --gold: oklch(.85 .18 85);
+    --green: oklch(.7 .2 145);
+    --red: oklch(.72 .25 25);
+    --cyan: oklch(.82 .22 195);
+    --accent: oklch(.72 .28 285);
+    --accent-b: oklch(.65 .28 285);
+    --fh: 'Orbitron', sans-serif;
+    --ft: 'Space Mono', monospace;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  html, body { background: var(--bg); color: var(--text); font-family: var(--ft); min-height: 100vh; overflow-x: hidden; }
+  body::before {
+    content: ''; position: fixed; inset: 0; pointer-events: none; z-index: 0;
+    background:
+      radial-gradient(ellipse 80% 60% at 20% 0%, oklch(.18 .15 285 / .35), transparent 60%),
+      radial-gradient(ellipse 60% 50% at 100% 40%, oklch(.18 .15 220 / .25), transparent 60%);
+  }
+
+  /* Header */
+  header {
+    position: relative; z-index: 2;
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 16px clamp(16px, 3vw, 32px);
+    border-bottom: 1px solid var(--border);
+    background: oklch(.04 .03 265 / .65); backdrop-filter: blur(10px);
+  }
+  .brand { display: flex; align-items: center; gap: 12px; text-decoration: none; }
+  .brand img { width: 36px; height: 36px; }
+  .brand-text {
+    font-family: var(--fh); font-weight: 900; font-size: 1.05rem; letter-spacing: .15em;
+    background: linear-gradient(100deg, var(--accent), var(--cyan));
+    -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
+  }
+  .brand-sub { font-size: .55rem; letter-spacing: .2em; color: var(--text-dim); text-transform: uppercase; margin-top: 2px; }
+  .nav { display: flex; gap: 10px; align-items: center; }
+  .nav a {
+    font-family: var(--fh); font-size: .62rem; letter-spacing: .12em; text-transform: uppercase;
+    color: var(--text-dim); text-decoration: none; padding: 6px 12px;
+    border: 1px solid var(--border); transition: color .2s, border-color .2s, background .2s;
+  }
+  .nav a:hover { color: var(--accent); border-color: var(--accent); background: oklch(.72 .28 285 / .08); }
+  .nav a.active { color: var(--text); border-color: var(--accent); background: oklch(.72 .28 285 / .12); }
+  .live-pill {
+    display: flex; align-items: center; gap: 6px;
+    font-family: var(--fh); font-size: .55rem; letter-spacing: .2em; color: var(--green);
+    padding: 4px 10px; border: 1px solid oklch(.7 .2 145 / .45);
+  }
+  .ldot { width: 6px; height: 6px; border-radius: 50%; background: var(--green); box-shadow: 0 0 6px var(--green); animation: pulse 1.8s ease-in-out infinite; }
+  @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:.45} }
+
+  /* Main */
+  main {
+    position: relative; z-index: 1;
+    max-width: 1440px; margin: 0 auto;
+    padding: 22px clamp(14px, 3vw, 32px) 80px;
+  }
+
+  /* Hero */
+  .hero-row {
+    display: grid; grid-template-columns: minmax(0, 2fr) minmax(0, 3fr);
+    gap: 16px; margin-bottom: 18px;
+  }
+  .price-card {
+    background: var(--surface); border: 1px solid var(--border);
+    padding: 22px 26px; position: relative;
+  }
+  .price-card::before {
+    content: ''; position: absolute; left: 0; top: 0; width: 3px; height: 100%;
+    background: linear-gradient(180deg, var(--accent), var(--cyan));
+    box-shadow: 0 0 10px var(--accent);
+  }
+  .pl-label { font-family: var(--fh); font-size: .55rem; letter-spacing: .22em; color: var(--text-dim); text-transform: uppercase; margin-bottom: 6px; }
+  .pl-value {
+    font-family: var(--fh); font-weight: 900; font-size: clamp(2rem, 4vw, 3rem); letter-spacing: .02em;
+    color: var(--gold); text-shadow: 0 0 22px oklch(.85 .18 85 / .35);
+  }
+  .pl-change { font-family: var(--fh); font-size: .9rem; letter-spacing: .06em; margin-top: 4px; }
+  .pl-change.up { color: var(--green); }
+  .pl-change.down { color: var(--red); }
+  .pl-meta { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-top: 18px; padding-top: 14px; border-top: 1px solid var(--border); }
+  .pl-meta-item .l { font-size: .5rem; letter-spacing: .14em; color: var(--text-dim); text-transform: uppercase; margin-bottom: 3px; }
+  .pl-meta-item .v { font-family: var(--fh); font-weight: 700; font-size: .92rem; color: var(--text); }
+
+  .stats-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; }
+  .stat {
+    background: var(--surface-2); border: 1px solid var(--border);
+    padding: 14px 16px; position: relative;
+  }
+  .stat::before { content: ''; position: absolute; left: 0; top: 0; width: 2px; height: 100%; background: var(--cyan); box-shadow: 0 0 8px var(--cyan); }
+  .stat .l { font-size: .5rem; letter-spacing: .14em; color: var(--text-dim); text-transform: uppercase; margin-bottom: 6px; }
+  .stat .v { font-family: var(--fh); font-weight: 700; font-size: 1rem; color: var(--cyan); letter-spacing: .04em; }
+  .stat .s { font-size: .58rem; color: var(--text-dim); margin-top: 4px; }
+  .stat.gold::before { background: var(--gold); box-shadow: 0 0 8px var(--gold); } .stat.gold .v { color: var(--gold); }
+  .stat.green::before { background: var(--green); box-shadow: 0 0 8px var(--green); } .stat.green .v { color: var(--green); }
+  .stat.accent::before { background: var(--accent); box-shadow: 0 0 8px var(--accent); } .stat.accent .v { color: var(--accent); }
+
+  /* Main chart panel */
+  .panel {
+    background: var(--surface); border: 1px solid var(--border);
+    padding: 18px 22px; margin-bottom: 16px; position: relative;
+  }
+  .panel-head { display: flex; align-items: center; justify-content: space-between; gap: 16px; margin-bottom: 14px; flex-wrap: wrap; }
+  .panel-title { font-family: var(--fh); font-size: 1.1rem; font-weight: 900; letter-spacing: .03em; color: var(--text); }
+  .panel-sub { font-size: .55rem; letter-spacing: .14em; color: var(--text-dim); text-transform: uppercase; margin-top: 2px; }
+  .pills { display: flex; gap: 5px; flex-wrap: wrap; }
+  .pill {
+    font-family: var(--fh); font-size: .58rem; letter-spacing: .12em;
+    padding: 5px 11px; background: transparent; color: var(--text-dim);
+    border: 1px solid var(--border); cursor: pointer;
+    transition: all .15s;
+  }
+  .pill:hover { color: var(--text); border-color: var(--accent); }
+  .pill.active { color: var(--text); border-color: var(--accent); background: oklch(.72 .28 285 / .15); box-shadow: 0 0 8px oklch(.72 .28 285 / .25); }
+  .chart-wrap { position: relative; height: 480px; }
+  .chart-loading {
+    position: absolute; inset: 0; display: flex; align-items: center; justify-content: center;
+    color: var(--text-dim); font-size: .8rem; letter-spacing: .1em;
+  }
+
+  /* Secondary panels grid */
+  .secondary-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; margin-bottom: 16px; }
+  .mini-panel { background: var(--surface); border: 1px solid var(--border); padding: 14px 16px; min-height: 240px; display: flex; flex-direction: column; }
+  .mini-panel .panel-title { font-size: .82rem; }
+  .mini-panel .chart-wrap { height: 180px; flex-grow: 1; }
+
+  /* Fear & greed dial */
+  .fg-display { display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100%; gap: 8px; }
+  .fg-number { font-family: var(--fh); font-size: 3.4rem; font-weight: 900; }
+  .fg-label { font-size: .7rem; letter-spacing: .2em; text-transform: uppercase; }
+  .fg-meta { font-size: .58rem; color: var(--text-dim); }
+  .fg-history { display: flex; gap: 3px; align-items: flex-end; height: 28px; margin-top: 8px; }
+  .fg-bar { width: 6px; background: var(--accent); opacity: .6; }
+
+  footer {
+    text-align: center; padding: 24px; font-size: .65rem; color: var(--text-dim); letter-spacing: .1em;
+    border-top: 1px solid var(--border);
+  }
+  footer a { color: var(--accent); text-decoration: none; }
+  footer a:hover { color: var(--cyan); }
+
+  /* Responsive */
+  @media (max-width: 1100px) {
+    .stats-grid { grid-template-columns: repeat(2, 1fr); }
+    .secondary-grid { grid-template-columns: 1fr; }
+  }
+  @media (max-width: 768px) {
+    .hero-row { grid-template-columns: 1fr; }
+    .stats-grid { grid-template-columns: repeat(2, 1fr); }
+    .chart-wrap { height: 320px; }
+    header { flex-direction: column; gap: 10px; align-items: flex-start; }
+    .nav { width: 100%; overflow-x: auto; }
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <a class="brand" href="/">
+    <img src="/favicon.svg" alt="SpaceCat" />
+    <div>
+      <div class="brand-text">SPACECAT</div>
+      <div class="brand-sub">BTC Price Tracker</div>
+    </div>
+  </a>
+  <nav class="nav">
+    <a href="/">⌛ Halving</a>
+    <a href="/price/" class="active">📊 Price</a>
+    <a href="/about/">? About</a>
+    <span class="live-pill"><span class="ldot"></span>LIVE</span>
+  </nav>
+</header>
+
+<main>
+
+  <!-- Hero row: big price + stats grid -->
+  <div class="hero-row">
+    <div class="price-card">
+      <div class="pl-label">Bitcoin · BTC/USD</div>
+      <div class="pl-value" id="bigPrice">—</div>
+      <div class="pl-change" id="bigChange">—</div>
+      <div class="pl-meta">
+        <div class="pl-meta-item"><div class="l">24h High</div><div class="v" id="highStat">—</div></div>
+        <div class="pl-meta-item"><div class="l">24h Low</div><div class="v" id="lowStat">—</div></div>
+        <div class="pl-meta-item"><div class="l">24h Volume</div><div class="v" id="volStat">—</div></div>
+        <div class="pl-meta-item"><div class="l">Market Cap</div><div class="v" id="capStat">—</div></div>
+      </div>
+    </div>
+
+    <div class="stats-grid">
+      <div class="stat gold"><div class="l">All-Time High</div><div class="v" id="athStat">—</div><div class="s" id="athDate">—</div></div>
+      <div class="stat"><div class="l">From ATH</div><div class="v" id="fromAth">—</div><div class="s">discount to peak</div></div>
+      <div class="stat green"><div class="l">BTC Dominance</div><div class="v" id="domStat">—</div><div class="s">of total crypto mcap</div></div>
+      <div class="stat accent"><div class="l">Sats / USD</div><div class="v" id="satsStat">—</div><div class="s">how many sats $1 buys</div></div>
+      <div class="stat"><div class="l">7d Change</div><div class="v" id="d7Stat">—</div><div class="s">vs. last week</div></div>
+      <div class="stat gold"><div class="l">30d Change</div><div class="v" id="d30Stat">—</div><div class="s">vs. last month</div></div>
+      <div class="stat green"><div class="l">200d MA</div><div class="v" id="ma200Stat">—</div><div class="s">long-term trend</div></div>
+      <div class="stat accent"><div class="l">YTD</div><div class="v" id="ytdStat">—</div><div class="s">year to date</div></div>
+    </div>
+  </div>
+
+  <!-- Main chart -->
+  <div class="panel">
+    <div class="panel-head">
+      <div>
+        <div class="panel-title">📈 BTC Price History</div>
+        <div class="panel-sub">USD · Binance spot · UTC</div>
+      </div>
+      <div class="pills" id="rangePills">
+        <button class="pill" data-range="1D">1D</button>
+        <button class="pill" data-range="1W">1W</button>
+        <button class="pill" data-range="1M">1M</button>
+        <button class="pill" data-range="3M">3M</button>
+        <button class="pill" data-range="6M">6M</button>
+        <button class="pill active" data-range="1Y">1Y</button>
+        <button class="pill" data-range="2Y">2Y</button>
+        <button class="pill" data-range="5Y">5Y</button>
+        <button class="pill" data-range="ALL">ALL</button>
+      </div>
+    </div>
+    <div class="chart-wrap">
+      <canvas id="mainChart"></canvas>
+      <div class="chart-loading" id="mainLoading">Loading price data…</div>
+    </div>
+  </div>
+
+  <!-- Cycle comparison -->
+  <div class="panel">
+    <div class="panel-head">
+      <div>
+        <div class="panel-title">🔄 Halving Cycle Comparison</div>
+        <div class="panel-sub">Performance after each halving · normalized to halving block</div>
+      </div>
+    </div>
+    <div class="chart-wrap" style="height: 360px;">
+      <canvas id="cycleChart"></canvas>
+      <div class="chart-loading" id="cycleLoading">Loading cycle data…</div>
+    </div>
+  </div>
+
+  <!-- Secondary panels -->
+  <div class="secondary-grid">
+    <div class="mini-panel">
+      <div class="panel-head"><div><div class="panel-title">😱 Fear &amp; Greed</div><div class="panel-sub">last 30 days</div></div></div>
+      <div class="chart-wrap"><div class="fg-display" id="fgDisplay">Loading…</div></div>
+    </div>
+    <div class="mini-panel">
+      <div class="panel-head"><div><div class="panel-title">🌐 BTC Dominance</div><div class="panel-sub">% of crypto market · 90d</div></div></div>
+      <div class="chart-wrap"><canvas id="domChart"></canvas></div>
+    </div>
+    <div class="mini-panel">
+      <div class="panel-head"><div><div class="panel-title">⚡ Hashrate</div><div class="panel-sub">EH/s · 6 month trend</div></div></div>
+      <div class="chart-wrap"><canvas id="hashChart"></canvas></div>
+    </div>
+  </div>
+
+</main>
+
+<footer>
+  © 2026 <a href="/">SpaceCat</a> · Data: <a href="https://binance.com" target="_blank" rel="noopener">Binance</a> · <a href="https://api.coingecko.com" target="_blank" rel="noopener">CoinGecko</a> · <a href="https://mempool.space" target="_blank" rel="noopener">mempool.space</a> · <a href="https://alternative.me" target="_blank" rel="noopener">Alternative.me</a>
+</footer>
+
+<script>
+// ── Helpers ────────────────────────────────────────────────────────────────
+const fmtUSD = (n, dec = 0) => '$' + n.toLocaleString('en-US', { minimumFractionDigits: dec, maximumFractionDigits: dec });
+const fmtBig = n => {
+  const abs = Math.abs(n);
+  if (abs >= 1e12) return '$' + (n/1e12).toFixed(2) + 'T';
+  if (abs >= 1e9)  return '$' + (n/1e9).toFixed(2)  + 'B';
+  if (abs >= 1e6)  return '$' + (n/1e6).toFixed(2)  + 'M';
+  return fmtUSD(n);
+};
+const fmtPct = (n, dec = 2) => (n>=0?'+':'') + n.toFixed(dec) + '%';
+
+const HALVINGS = [
+  { id: 'I',   date: '2012-11-28', block: 210000 },
+  { id: 'II',  date: '2016-07-09', block: 420000 },
+  { id: 'III', date: '2020-05-11', block: 630000 },
+  { id: 'IV',  date: '2024-04-19', block: 840000 },
+];
+
+// ── Chart.js defaults ──────────────────────────────────────────────────────
+Chart.defaults.font.family = "'Space Mono', monospace";
+Chart.defaults.font.size = 10;
+Chart.defaults.color = '#8888aa';
+Chart.defaults.borderColor = 'rgba(120, 80, 200, 0.12)';
+
+// ── Range → Binance kline params ───────────────────────────────────────────
+function rangeParams(range) {
+  const now = Date.now();
+  switch (range) {
+    case '1D':  return { interval: '15m', limit: 96,  start: now - 24*3600e3 };
+    case '1W':  return { interval: '1h',  limit: 168, start: now - 7*24*3600e3 };
+    case '1M':  return { interval: '4h',  limit: 180, start: now - 30*24*3600e3 };
+    case '3M':  return { interval: '12h', limit: 180, start: now - 90*24*3600e3 };
+    case '6M':  return { interval: '1d',  limit: 180, start: now - 180*24*3600e3 };
+    case '1Y':  return { interval: '1d',  limit: 365, start: now - 365*24*3600e3 };
+    case '2Y':  return { interval: '3d',  limit: 250, start: now - 2*365*24*3600e3 };
+    case '5Y':  return { interval: '1w',  limit: 260, start: now - 5*365*24*3600e3 };
+    case 'ALL': return { interval: '1M',  limit: 200, start: 1230768000000 }; // 2009
+  }
+}
+
+// ── Fetch BTC klines from Binance ──────────────────────────────────────────
+async function fetchKlines(range) {
+  const p = rangeParams(range);
+  const url = `https://api.binance.com/api/v3/klines?symbol=BTCUSDT&interval=${p.interval}&startTime=${p.start}&limit=${p.limit}`;
+  const r = await fetch(url);
+  if (!r.ok) throw new Error('Klines fetch failed');
+  const arr = await r.json();
+  return arr.map(k => ({ t: k[0], o: +k[1], h: +k[2], l: +k[3], c: +k[4], v: +k[5] }));
+}
+
+// ── Main chart ─────────────────────────────────────────────────────────────
+let mainChart = null;
+async function renderMain(range) {
+  document.getElementById('mainLoading').style.display = 'flex';
+  try {
+    const data = await fetchKlines(range);
+    document.getElementById('mainLoading').style.display = 'none';
+    const labels = data.map(d => new Date(d.t));
+    const closes = data.map(d => d.c);
+
+    const ctx = document.getElementById('mainChart').getContext('2d');
+    const grad = ctx.createLinearGradient(0, 0, 0, 480);
+    grad.addColorStop(0, 'rgba(160,100,255,0.40)');
+    grad.addColorStop(1, 'rgba(64,200,224,0.02)');
+
+    if (mainChart) mainChart.destroy();
+    mainChart = new Chart(ctx, {
+      type: 'line',
+      data: {
+        labels,
+        datasets: [{
+          label: 'BTC/USD',
+          data: closes,
+          borderColor: 'rgba(64,200,224,1)',
+          borderWidth: 2,
+          backgroundColor: grad,
+          fill: true,
+          tension: 0.18,
+          pointRadius: 0,
+          pointHoverRadius: 5,
+          pointHoverBackgroundColor: 'rgba(255,215,90,1)',
+          pointHoverBorderColor: 'rgba(255,255,255,0.8)',
+        }],
+      },
+      options: {
+        responsive: true, maintainAspectRatio: false,
+        interaction: { mode: 'index', intersect: false },
+        scales: {
+          x: { type: 'time', time: { tooltipFormat: 'PP p' }, grid: { display: false }, ticks: { maxTicksLimit: 8 } },
+          y: { ticks: { callback: v => fmtUSD(v) }, grid: { color: 'rgba(120,80,200,0.10)' } },
+        },
+        plugins: {
+          legend: { display: false },
+          tooltip: {
+            backgroundColor: 'rgba(2,2,14,0.95)', borderColor: 'rgba(120,60,255,0.4)', borderWidth: 1,
+            titleFont: { family: 'Orbitron', size: 11 },
+            bodyFont: { family: 'Space Mono', size: 11 },
+            callbacks: { label: (c) => 'BTC: ' + fmtUSD(c.parsed.y) },
+          },
+        },
+      },
+    });
+  } catch (e) {
+    document.getElementById('mainLoading').textContent = 'Failed to load price data';
+  }
+}
+
+document.getElementById('rangePills').addEventListener('click', (e) => {
+  if (e.target.matches('.pill')) {
+    document.querySelectorAll('#rangePills .pill').forEach(p => p.classList.toggle('active', p === e.target));
+    renderMain(e.target.dataset.range);
+  }
+});
+
+// ── Top stats: live price + 24h ─────────────────────────────────────────────
+let lastPrice = null;
+async function fetchLiveStats() {
+  try {
+    const r = await fetch('https://api.binance.com/api/v3/ticker/24hr?symbol=BTCUSDT');
+    if (!r.ok) return;
+    const d = await r.json();
+    const price = +d.lastPrice;
+    const change = +d.priceChangePercent;
+    const high = +d.highPrice, low = +d.lowPrice, vol = +d.quoteVolume;
+    lastPrice = price;
+    document.getElementById('bigPrice').textContent = fmtUSD(price);
+    document.getElementById('bigChange').textContent = `${fmtPct(change)} · ${change >= 0 ? '▲' : '▼'} ${fmtUSD(+d.priceChange)} 24h`;
+    document.getElementById('bigChange').className = 'pl-change ' + (change >= 0 ? 'up' : 'down');
+    document.getElementById('highStat').textContent = fmtUSD(high);
+    document.getElementById('lowStat').textContent  = fmtUSD(low);
+    document.getElementById('volStat').textContent  = fmtBig(vol);
+    document.getElementById('satsStat').textContent = Math.round(100_000_000 / price).toLocaleString() + ' sats';
+  } catch {}
+}
+
+async function fetchCoinGecko() {
+  try {
+    const r = await fetch('https://api.coingecko.com/api/v3/coins/bitcoin?localization=false&tickers=false&community_data=false&developer_data=false&sparkline=false');
+    if (!r.ok) return;
+    const d = await r.json();
+    const m = d.market_data;
+    document.getElementById('capStat').textContent = fmtBig(m.market_cap.usd);
+    document.getElementById('athStat').textContent = fmtUSD(m.ath.usd);
+    document.getElementById('athDate').textContent = new Date(m.ath_date.usd).toLocaleDateString('en-US', { year: 'numeric', month: 'short' });
+    document.getElementById('fromAth').textContent = fmtPct(m.ath_change_percentage.usd, 1);
+    document.getElementById('domStat').textContent = (d.market_cap_percentage_btc || (m.market_cap.usd / 1e9 / 30)).toFixed(1) + '%';
+    document.getElementById('d7Stat').textContent  = fmtPct(m.price_change_percentage_7d, 1);
+    document.getElementById('d7Stat').style.color  = (m.price_change_percentage_7d >= 0) ? 'var(--green)' : 'var(--red)';
+    document.getElementById('d30Stat').textContent = fmtPct(m.price_change_percentage_30d, 1);
+    document.getElementById('d30Stat').style.color = (m.price_change_percentage_30d >= 0) ? 'var(--green)' : 'var(--red)';
+    document.getElementById('ytdStat').textContent = m.price_change_percentage_1y != null ? fmtPct(m.price_change_percentage_1y, 1) : '—';
+    document.getElementById('ytdStat').style.color = ((m.price_change_percentage_1y || 0) >= 0) ? 'var(--green)' : 'var(--red)';
+  } catch {}
+}
+
+async function fetchGlobalDom() {
+  try {
+    const r = await fetch('https://api.coingecko.com/api/v3/global');
+    if (!r.ok) return;
+    const d = await r.json();
+    const dom = d.data && d.data.market_cap_percentage && d.data.market_cap_percentage.btc;
+    if (dom) document.getElementById('domStat').textContent = dom.toFixed(1) + '%';
+  } catch {}
+}
+
+// 200d MA from a wider kline fetch
+async function fetch200MA() {
+  try {
+    const r = await fetch('https://api.binance.com/api/v3/klines?symbol=BTCUSDT&interval=1d&limit=200');
+    if (!r.ok) return;
+    const arr = await r.json();
+    const closes = arr.map(k => +k[4]);
+    const ma = closes.reduce((s,v) => s + v, 0) / closes.length;
+    document.getElementById('ma200Stat').textContent = fmtUSD(ma);
+    if (lastPrice != null) {
+      const diff = ((lastPrice - ma) / ma) * 100;
+      document.getElementById('ma200Stat').nextElementSibling.textContent = (diff >= 0 ? '+' : '') + diff.toFixed(1) + '% vs MA';
+    }
+  } catch {}
+}
+
+// ── Fear & Greed (alternative.me) ──────────────────────────────────────────
+async function renderFearGreed() {
+  const root = document.getElementById('fgDisplay');
+  try {
+    const r = await fetch('https://api.alternative.me/fng/?limit=30');
+    if (!r.ok) throw 0;
+    const d = await r.json();
+    const items = d.data || [];
+    if (!items.length) throw 0;
+    const cur = items[0];
+    const v = +cur.value;
+    const label = cur.value_classification;
+    const color = v < 25 ? 'var(--red)' : v < 45 ? 'oklch(.78 .22 35)' : v < 55 ? 'oklch(.75 .12 80)' : v < 75 ? 'oklch(.75 .2 130)' : 'var(--green)';
+    let bars = '';
+    [...items].reverse().forEach(it => {
+      const h = Math.max(4, (+it.value) / 100 * 28);
+      bars += `<div class="fg-bar" style="height:${h}px;background:${color};opacity:${0.4 + +it.value/200}"></div>`;
+    });
+    root.innerHTML = `
+      <div class="fg-number" style="color:${color}">${v}</div>
+      <div class="fg-label" style="color:${color}">${label}</div>
+      <div class="fg-meta">30 days · current: ${v}/100</div>
+      <div class="fg-history">${bars}</div>
+    `;
+  } catch {
+    root.textContent = 'Fear & Greed unavailable';
+  }
+}
+
+// ── Mini chart helpers ─────────────────────────────────────────────────────
+function miniLine(canvasId, labels, data, color, fillColor, yFmt) {
+  const ctx = document.getElementById(canvasId).getContext('2d');
+  return new Chart(ctx, {
+    type: 'line',
+    data: { labels, datasets: [{ data, borderColor: color, backgroundColor: fillColor, borderWidth: 1.5, fill: true, tension: .2, pointRadius: 0 }] },
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      scales: {
+        x: { type: 'time', grid: { display: false }, ticks: { maxTicksLimit: 4, color: '#667' } },
+        y: { ticks: { callback: yFmt || (v => v.toFixed(1)), color: '#667', maxTicksLimit: 4 }, grid: { color: 'rgba(120,80,200,0.07)' } },
+      },
+      plugins: { legend: { display: false }, tooltip: { backgroundColor: 'rgba(2,2,14,0.95)' } },
+    },
+  });
+}
+
+// BTC dominance 90d (uses Coingecko global market cap chart approximation via simple fetch)
+async function renderDom() {
+  try {
+    const r = await fetch('https://api.coingecko.com/api/v3/coins/bitcoin/market_chart?vs_currency=usd&days=90');
+    if (!r.ok) throw 0;
+    const d = await r.json();
+    // Use market cap relative to ETH+others approximation isn't trivial without the global chart endpoint.
+    // Instead, plot BTC market cap as a proxy for dominance trend.
+    const points = d.market_caps.slice(-90);
+    const labels = points.map(p => new Date(p[0]));
+    const values = points.map(p => p[1] / 1e9); // billions
+    miniLine('domChart', labels, values, 'rgba(80,220,120,1)', 'rgba(80,220,120,0.12)', v => v.toFixed(0) + 'B');
+  } catch {}
+}
+
+// Hashrate 6-month from mempool.space
+async function renderHash() {
+  try {
+    const r = await fetch('https://mempool.space/api/v1/mining/hashrate/6m');
+    if (!r.ok) throw 0;
+    const d = await r.json();
+    const arr = d.hashrates || [];
+    const labels = arr.map(x => new Date(x.timestamp * 1000));
+    const values = arr.map(x => x.avgHashrate / 1e18); // EH/s
+    miniLine('hashChart', labels, values, 'rgba(255,215,90,1)', 'rgba(255,215,90,0.12)', v => v.toFixed(0) + ' EH/s');
+  } catch {}
+}
+
+// ── Cycle comparison: overlay 3 cycles normalized ──────────────────────────
+async function renderCycleComparison() {
+  document.getElementById('cycleLoading').style.display = 'flex';
+  const datasets = [];
+  const colors = ['rgba(80,200,230,1)','rgba(160,100,255,1)','rgba(255,215,90,1)','rgba(120,220,160,1)'];
+
+  // For each halving, fetch ~750 days of daily closes starting from halving date
+  for (let i = 1; i < HALVINGS.length; i++) { // skip Halving I (Binance data starts 2017)
+    const halving = HALVINGS[i];
+    try {
+      const start = new Date(halving.date).getTime();
+      const days = (i === HALVINGS.length - 1) // ongoing cycle
+        ? Math.min(750, Math.floor((Date.now() - start) / 86400e3))
+        : 750;
+      const url = `https://api.binance.com/api/v3/klines?symbol=BTCUSDT&interval=1d&startTime=${start}&limit=${days}`;
+      const r = await fetch(url);
+      if (!r.ok) continue;
+      const arr = await r.json();
+      if (!arr.length) continue;
+      const base = +arr[0][4];
+      const data = arr.map((k, idx) => ({ x: idx, y: (+k[4] / base) * 100 }));
+      datasets.push({
+        label: 'Halving ' + halving.id + ' (' + halving.date.slice(0,4) + ')',
+        data,
+        borderColor: colors[i],
+        backgroundColor: colors[i].replace('1)', '0.07)'),
+        borderWidth: i === HALVINGS.length - 1 ? 2.5 : 1.6,
+        fill: false, tension: .2, pointRadius: 0,
+      });
+    } catch {}
+  }
+  document.getElementById('cycleLoading').style.display = 'none';
+
+  if (!datasets.length) { document.getElementById('cycleLoading').textContent = 'Cycle data unavailable.'; document.getElementById('cycleLoading').style.display = 'flex'; return; }
+
+  const ctx = document.getElementById('cycleChart').getContext('2d');
+  new Chart(ctx, {
+    type: 'line',
+    data: { datasets },
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      scales: {
+        x: { type: 'linear', title: { display: true, text: 'Days after halving', color: '#667', font: { size: 10 } }, grid: { color: 'rgba(120,80,200,0.07)' }, ticks: { color: '#667' } },
+        y: { type: 'logarithmic', title: { display: true, text: '% gain from halving (log)', color: '#667', font: { size: 10 } }, ticks: { callback: v => v + '%', color: '#667' }, grid: { color: 'rgba(120,80,200,0.07)' } },
+      },
+      plugins: {
+        legend: { display: true, position: 'bottom', labels: { color: '#aac', font: { family: 'Orbitron', size: 10 }, usePointStyle: true } },
+        tooltip: { backgroundColor: 'rgba(2,2,14,0.95)', callbacks: { label: c => c.dataset.label + ': ' + c.parsed.y.toFixed(0) + '%' } },
+      },
+    },
+  });
+}
+
+// ── Init ──────────────────────────────────────────────────────────────────
+async function init() {
+  await fetchLiveStats();
+  fetch200MA();
+  fetchCoinGecko();
+  fetchGlobalDom();
+  renderMain('1Y');
+  renderCycleComparison();
+  renderFearGreed();
+  renderDom();
+  renderHash();
+
+  // Refresh live price every 30s
+  setInterval(fetchLiveStats, 30_000);
+}
+init();
+</script>
+</body>
+</html>
