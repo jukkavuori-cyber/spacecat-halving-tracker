@@ -26,21 +26,31 @@ def remove_white(im, threshold=240, soft=15):
     return im
 
 def prep(src_path, scrub_bg=True):
-    """Load → optionally remove white bg → auto-crop → pad to square."""
+    """Simple character → scrub white bg, bbox-crop, pad to square (preserves
+    full character with transparent bg).
+    Detailed astronaut → center-crop to a square focused on the character
+    (keeps the original dark cosmic backdrop)."""
     im = Image.open(src_path).convert("RGBA")
-    # Downscale once for processing speed
     work = im.copy()
     work.thumbnail((1024, 1024), Image.LANCZOS)
+
     if scrub_bg:
         work = remove_white(work)
-    bbox = work.getbbox()
-    if bbox:
-        work = work.crop(bbox)
+        bbox = work.getbbox()
+        if bbox:
+            work = work.crop(bbox)
+        w, h = work.size
+        side = max(w, h)
+        square = Image.new("RGBA", (side, side), (0, 0, 0, 0))
+        square.paste(work, ((side - w) // 2, (side - h) // 2), work)
+        return square
+
+    # Detailed astronaut path: center-crop to square (no padding)
     w, h = work.size
-    side = max(w, h)
-    square = Image.new("RGBA", (side, side), (0, 0, 0, 0))
-    square.paste(work, ((side - w) // 2, (side - h) // 2), work)
-    return square
+    side = min(w, h)
+    left = (w - side) // 2
+    top = (h - side) // 2
+    return work.crop((left, top, left + side, top + side))
 
 def to_circle(img, size):
     img = img.resize((size, size), Image.LANCZOS)
