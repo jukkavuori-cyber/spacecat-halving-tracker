@@ -867,7 +867,16 @@ html, body { height: 100%; overflow: hidden; background: var(--bg); color: var(-
   .scard, .cd-card { width: 100%; }
 
   .vprog { left: 4px; }
-  .track-col { width: 105px; flex-shrink: 0; }
+  .track-col { width: 105px; flex-shrink: 0; transform: none; }
+  .hero { left: 0; }
+
+  /* Header: hide notify (no real value on mobile), compact share/tweet */
+  #notifyBtn { display: none; }
+  .header-r { gap: 8px; flex-wrap: nowrap; }
+  .share-btn { padding: 5px 8px; font-size: .56rem; letter-spacing: .08em; }
+  .hblock { font-size: .62rem; }
+  #liveIndicator { padding: 3px 6px; font-size: .5rem; }
+  .ws-tag { font-size: .5rem; }
   .brow { grid-template-columns: 1fr 1fr; }
   .brow .bstat:last-child { grid-column: span 1; }
   .hh-cards { grid-template-columns: 1fr 1fr; }
