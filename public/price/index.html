@@ -74,7 +74,7 @@
     background: oklch(.04 .03 265 / .65); backdrop-filter: blur(10px);
   }
   .brand { display: flex; align-items: center; gap: 12px; text-decoration: none; }
-  .brand img { width: 36px; height: 36px; }
+  .brand img { width: 44px; height: 44px; filter: drop-shadow(0 0 12px oklch(.72 .28 285 / .4)); }
   .brand-text {
     font-family: var(--fh); font-weight: 900; font-size: 1.05rem; letter-spacing: .15em;
     background: linear-gradient(100deg, var(--accent), var(--cyan));
@@ -205,7 +205,7 @@
 
 <header>
   <a class="brand" href="/">
-    <img src="/favicon.svg" alt="SpaceCat" />
+    <img src="/logo.png" alt="SpaceCat" width="44" height="44" />
     <div>
       <div class="brand-text">SPACECAT</div>
       <div class="brand-sub">BTC Price Tracker</div>
