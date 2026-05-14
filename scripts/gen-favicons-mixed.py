@@ -76,23 +76,64 @@ def to_circle(img, size):
     out.paste(img, (0, 0), mask)
     return out
 
+def on_cosmic_disc(character_img, size):
+    """Render the character on a dark cosmic disc with cyan rim — readable on
+    both light and dark browser tab backgrounds (Chrome, Brave, Safari, etc.)."""
+    # Render at 4x for crisp edges, then downscale
+    SS = 4
+    s = size * SS
+    img = Image.new("RGBA", (s, s), (0, 0, 0, 0))
+    draw = ImageDraw.Draw(img)
+
+    cx, cy = s / 2, s / 2
+    r = s / 2 - 1
+
+    # Radial gradient: purple center → deep navy edge
+    for i in range(int(r), 0, -1):
+        t = 1 - (i / r)
+        rr = int(20 + 90 * t)
+        gg = int(8  + 30 * t)
+        bb = int(50 + 180 * t)
+        draw.ellipse([cx - i, cy - i, cx + i, cy + i], fill=(rr, gg, bb, 255))
+
+    # Cyan rim
+    rim_w = max(SS, s // 32)
+    for i in range(rim_w):
+        a = int(255 * (1 - i / rim_w))
+        draw.ellipse([i, i, s - 1 - i, s - 1 - i],
+                     outline=(64, 200, 224, a), width=SS)
+
+    # Resize character to fit inside the disc (~84% of size) and paste centered
+    char_size = int(s * 0.86)
+    ch = character_img.resize((char_size, char_size), Image.LANCZOS)
+    offset = (s - char_size) // 2
+    img.paste(ch, (offset, offset), ch)
+
+    # Mask to circle so the character doesn't bleed past the rim
+    mask = Image.new("L", (s, s), 0)
+    ImageDraw.Draw(mask).ellipse([0, 0, s, s], fill=255)
+    out = Image.new("RGBA", (s, s), (0, 0, 0, 0))
+    out.paste(img, (0, 0), mask)
+
+    return out.resize((size, size), Image.LANCZOS)
+
 print("Preparing sources…")
 simple_sq   = prep_transparent(SRC_SIMPLE)
 detailed_sq = prep_center_crop(SRC_DETAILED)
 
-# ── SMALL favicons (simple character) ──────────────────────────────────
-print("Small (simple character):")
+# ── SMALL favicons (character on cosmic disc for visibility) ───────────
+print("Small (character on cosmic disc):")
 for name, size in [
     ("favicon-16x16.png", 16),
     ("favicon-32x32.png", 32),
     ("favicon-48x48.png", 48),
 ]:
-    out = simple_sq.resize((size, size), Image.LANCZOS)
+    out = on_cosmic_disc(simple_sq, size)
     out.save(os.path.join(PUBLIC, name), "PNG", optimize=True)
     print(f"  → {name} ({size}×{size})")
 
 ico_sizes = [(16, 16), (32, 32), (48, 48)]
-imgs = [simple_sq.resize(s, Image.LANCZOS) for s in ico_sizes]
+imgs = [on_cosmic_disc(simple_sq, s[0]) for s in ico_sizes]
 imgs[0].save(
     os.path.join(PUBLIC, "favicon.ico"),
     format="ICO", sizes=ico_sizes, append_images=imgs[1:],
