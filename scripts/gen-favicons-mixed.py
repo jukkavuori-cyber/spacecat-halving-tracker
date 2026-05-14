@@ -7,8 +7,9 @@ from PIL import Image, ImageDraw
 import os
 
 PUBLIC = "/Users/macmini/SpaceCat/public"
-SRC_SIMPLE   = os.path.join(PUBLIC, "ChatGPT Image 14.5.2026 klo 19.03.16.png")
-SRC_DETAILED = os.path.join(PUBLIC, "ChatGPT Image 14.5.2026 klo 18.47.08.png")
+SRC_BTC      = os.path.join(PUBLIC, "ChatGPT Image 14.5.2026 klo 19.28.42.png")  # for small favicons
+SRC_SIMPLE   = os.path.join(PUBLIC, "ChatGPT Image 14.5.2026 klo 19.03.16.png")  # logo + small fallback
+SRC_DETAILED = os.path.join(PUBLIC, "ChatGPT Image 14.5.2026 klo 18.47.08.png")  # large favicons
 
 def remove_white(im, threshold=220, soft=30):
     pix = im.load()
@@ -118,22 +119,23 @@ def on_cosmic_disc(character_img, size):
     return out.resize((size, size), Image.LANCZOS)
 
 print("Preparing sources…")
+btc_sq      = prep_transparent(SRC_BTC)
 simple_sq   = prep_transparent(SRC_SIMPLE)
 detailed_sq = prep_center_crop(SRC_DETAILED)
 
-# ── SMALL favicons (character on cosmic disc for visibility) ───────────
-print("Small (character on cosmic disc):")
+# ── SMALL favicons (BTC logo — readable at 16px in Chrome) ─────────────
+print("Small (BTC logo):")
 for name, size in [
     ("favicon-16x16.png", 16),
     ("favicon-32x32.png", 32),
     ("favicon-48x48.png", 48),
 ]:
-    out = on_cosmic_disc(simple_sq, size)
+    out = btc_sq.resize((size, size), Image.LANCZOS)
     out.save(os.path.join(PUBLIC, name), "PNG", optimize=True)
     print(f"  → {name} ({size}×{size})")
 
 ico_sizes = [(16, 16), (32, 32), (48, 48)]
-imgs = [on_cosmic_disc(simple_sq, s[0]) for s in ico_sizes]
+imgs = [btc_sq.resize(s, Image.LANCZOS) for s in ico_sizes]
 imgs[0].save(
     os.path.join(PUBLIC, "favicon.ico"),
     format="ICO", sizes=ico_sizes, append_images=imgs[1:],
