@@ -24,6 +24,7 @@ const initBlock = (urlBlock > LAST_HALVING && urlBlock < NEXT_HALVING) ? urlBloc
 const state = {
   currentBlock: initBlock, lastBlock: initBlock - 1,
   isLive: false, wsConnected: false, lastBlockMs: Date.now(),
+  firstSync: false, // becomes true after the first real block height is fetched
 };
 const catState = {
   face: '🐱', helmetColor: 'cyan', rocketStyle: 'standard', meowEnabled: true,
@@ -91,11 +92,15 @@ function initWebSocket() {
           el('liveIndicator').style.opacity = '1';
           const h = data.block.height;
           if (h > state.currentBlock) {
+            const isInitial = !state.firstSync;
             state.lastBlock    = state.currentBlock;
             state.lastBlockMs  = Date.now();
             state.currentBlock = h;
-            onNewBlock(h);
-            updateStats(h);
+            state.firstSync = true;
+            if (isInitial) updateStats(h);
+            else { onNewBlock(h); updateStats(h); }
+          } else if (!state.firstSync) {
+            state.firstSync = true;
           }
         }
       } catch {}
@@ -846,10 +851,15 @@ async function refresh() {
   if (typeof block === 'number' && block > 0) {
     el('liveIndicator').style.opacity = '1';
     if (block > state.currentBlock) {
+      const isInitial = !state.firstSync;
       state.lastBlock = state.currentBlock; state.lastBlockMs = Date.now();
       state.currentBlock = block;
-      onNewBlock(block);
-    } else { state.currentBlock = block; }
+      state.firstSync = true;
+      if (!isInitial) onNewBlock(block);
+    } else {
+      state.currentBlock = block;
+      state.firstSync = true;
+    }
   } else {
     state.currentBlock += Math.floor(Math.random() * 2) + 1;
   }
