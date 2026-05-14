@@ -10,6 +10,10 @@ import {
   revealNewBlock,
 } from './extras.js';
 import { startLiveData, refreshRecentBlocks } from './live-data.js';
+import { registerServiceWorker, initInstallPrompt } from './pwa.js';
+
+// PWA bootstrap (runs before DOMContentLoaded for early SW registration)
+registerServiceWorker();
 
 const LAST_HALVING   = 840_000;
 const NEXT_HALVING   = 1_050_000;
@@ -929,6 +933,7 @@ window.addEventListener('DOMContentLoaded', () => {
   initNotifications();
   renderCyclePhase(halvingProgress(state.currentBlock).progress);
   startLiveData();
+  initInstallPrompt();
 
   window.addEventListener('resize', () => {
     const { progress } = halvingProgress(state.currentBlock);

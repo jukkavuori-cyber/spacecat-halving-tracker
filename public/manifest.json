@@ -2,15 +2,37 @@
   "name": "SpaceCat — Bitcoin Halving Tracker",
   "short_name": "SpaceCat",
   "description": "Real-time Bitcoin halving countdown with live block data, BTC price history and cycle analytics.",
-  "start_url": "/",
+  "start_url": "/?source=pwa",
+  "scope": "/",
+  "id": "spacecat-bitcoin-halving",
   "display": "standalone",
+  "display_override": ["standalone", "minimal-ui"],
   "background_color": "#02020e",
   "theme_color": "#02020e",
-  "orientation": "portrait-primary",
+  "orientation": "any",
+  "categories": ["finance", "utilities", "news"],
+  "lang": "en",
   "icons": [
-    { "src": "/favicon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any" },
-    { "src": "/android-chrome-192x192.png", "sizes": "192x192", "type": "image/png", "purpose": "any maskable" },
-    { "src": "/android-chrome-512x512.png", "sizes": "512x512", "type": "image/png", "purpose": "any maskable" },
+    { "src": "/android-chrome-192x192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
+    { "src": "/android-chrome-192x192.png", "sizes": "192x192", "type": "image/png", "purpose": "maskable" },
+    { "src": "/android-chrome-512x512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" },
+    { "src": "/android-chrome-512x512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" },
     { "src": "/apple-touch-icon.png", "sizes": "180x180", "type": "image/png", "purpose": "any" }
+  ],
+  "shortcuts": [
+    {
+      "name": "BTC Price Tracker",
+      "short_name": "Price",
+      "description": "Live Bitcoin price with multi-timeframe charts",
+      "url": "/price/?source=pwa-shortcut",
+      "icons": [{ "src": "/android-chrome-192x192.png", "sizes": "192x192" }]
+    },
+    {
+      "name": "About SpaceCat",
+      "short_name": "About",
+      "description": "How the halving works",
+      "url": "/about/?source=pwa-shortcut",
+      "icons": [{ "src": "/android-chrome-192x192.png", "sizes": "192x192" }]
+    }
   ]
 }

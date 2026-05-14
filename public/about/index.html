@@ -6,6 +6,13 @@
   <title>What is the Bitcoin Halving? — SpaceCat</title>
   <meta name="description" content="The Bitcoin halving cuts the block reward in half every 210,000 blocks (~4 years). Learn how it works, why it matters, and track the next one live." />
   <link rel="canonical" href="https://spacecat.academy/about/" />
+
+  <!-- PWA -->
+  <link rel="manifest" href="/manifest.json" />
+  <meta name="mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-title" content="SpaceCat" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
   <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
 
   <!-- Open Graph -->
@@ -487,5 +494,12 @@
     <span>Data: <a href="https://mempool.space" target="_blank" rel="noopener">mempool.space</a> · <a href="https://binance.com" target="_blank" rel="noopener">Binance</a> · <a href="https://alternative.me" target="_blank" rel="noopener">Alternative.me</a></span>
   </footer>
 
+<script>
+  if ('serviceWorker' in navigator && location.protocol === 'https:') {
+    window.addEventListener('load', () => {
+      navigator.serviceWorker.register('/sw.js', { scope: '/' }).catch(() => {});
+    });
+  }
+</script>
 </body>
 </html>
