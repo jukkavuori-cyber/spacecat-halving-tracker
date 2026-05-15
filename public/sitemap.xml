@@ -103,6 +103,47 @@
     <lastmod>2026-05-15</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
+    <xhtml:link rel="alternate" hreflang="en" href="https://spacecat.academy/about/"/>
+    <xhtml:link rel="alternate" hreflang="es" href="https://spacecat.academy/es/about/"/>
+    <xhtml:link rel="alternate" hreflang="fi" href="https://spacecat.academy/fi/about/"/>
+    <xhtml:link rel="alternate" hreflang="pt" href="https://spacecat.academy/pt/about/"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://spacecat.academy/about/"/>
+  </url>
+
+  <url>
+    <loc>https://spacecat.academy/es/about/</loc>
+    <lastmod>2026-05-15</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.65</priority>
+    <xhtml:link rel="alternate" hreflang="en" href="https://spacecat.academy/about/"/>
+    <xhtml:link rel="alternate" hreflang="es" href="https://spacecat.academy/es/about/"/>
+    <xhtml:link rel="alternate" hreflang="fi" href="https://spacecat.academy/fi/about/"/>
+    <xhtml:link rel="alternate" hreflang="pt" href="https://spacecat.academy/pt/about/"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://spacecat.academy/about/"/>
+  </url>
+
+  <url>
+    <loc>https://spacecat.academy/fi/about/</loc>
+    <lastmod>2026-05-15</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.65</priority>
+    <xhtml:link rel="alternate" hreflang="en" href="https://spacecat.academy/about/"/>
+    <xhtml:link rel="alternate" hreflang="es" href="https://spacecat.academy/es/about/"/>
+    <xhtml:link rel="alternate" hreflang="fi" href="https://spacecat.academy/fi/about/"/>
+    <xhtml:link rel="alternate" hreflang="pt" href="https://spacecat.academy/pt/about/"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://spacecat.academy/about/"/>
+  </url>
+
+  <url>
+    <loc>https://spacecat.academy/pt/about/</loc>
+    <lastmod>2026-05-15</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.65</priority>
+    <xhtml:link rel="alternate" hreflang="en" href="https://spacecat.academy/about/"/>
+    <xhtml:link rel="alternate" hreflang="es" href="https://spacecat.academy/es/about/"/>
+    <xhtml:link rel="alternate" hreflang="fi" href="https://spacecat.academy/fi/about/"/>
+    <xhtml:link rel="alternate" hreflang="pt" href="https://spacecat.academy/pt/about/"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://spacecat.academy/about/"/>
   </url>
 
 </urlset>

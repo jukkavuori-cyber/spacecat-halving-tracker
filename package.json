@@ -4,9 +4,9 @@
   "description": "Bitcoin Halving Tracker — SpaceCat Edition",
   "type": "module",
   "scripts": {
-    "predev": "node scripts/sync-i18n-pages.js",
+    "predev": "node scripts/sync-i18n-pages.js && node scripts/sync-about-pages.js",
     "dev": "vite",
-    "prebuild": "node scripts/sync-i18n-pages.js",
+    "prebuild": "node scripts/sync-i18n-pages.js && node scripts/sync-about-pages.js",
     "build": "vite build",
     "preview": "vite preview"
   },
