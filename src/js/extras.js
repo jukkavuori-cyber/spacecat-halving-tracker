@@ -1,6 +1,8 @@
 // SpaceCat extras: easter eggs, achievements, notifications, cycle phase.
 // All client-side; persists state to localStorage.
 
+import { t } from './i18n.js';
+
 const LS_KEY = 'spacecat:extras:v1';
 
 const state = (() => {
@@ -12,13 +14,13 @@ function save() {
 }
 
 function showToast(title, body, duration = 3200) {
-  const t = document.getElementById('toast');
-  if (!t) return;
+  const toastEl = document.getElementById('toast');
+  if (!toastEl) return;
   document.getElementById('tTitle').textContent = title;
   document.getElementById('tBody').textContent = body;
-  t.classList.add('show');
+  toastEl.classList.add('show');
   clearTimeout(showToast._h);
-  showToast._h = setTimeout(() => t.classList.remove('show'), duration);
+  showToast._h = setTimeout(() => toastEl.classList.remove('show'), duration);
 }
 
 // ── 1. Click counter + achievements ─────────────────────────────────────────
@@ -109,7 +111,7 @@ export function initNotifications() {
   if (!btn) return;
 
   const setBtn = (granted) => {
-    btn.textContent = granted ? '🔔 NOTIFIED' : '🔔 NOTIFY';
+    btn.textContent = granted ? t('nav.notify_on') : t('nav.notify');
     btn.classList.toggle('on', granted);
   };
 

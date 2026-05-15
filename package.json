@@ -2,8 +2,11 @@
   "name": "spacecat-halving-tracker",
   "version": "1.0.0",
   "description": "Bitcoin Halving Tracker — SpaceCat Edition",
+  "type": "module",
   "scripts": {
+    "predev": "node scripts/sync-i18n-pages.js",
     "dev": "vite",
+    "prebuild": "node scripts/sync-i18n-pages.js",
     "build": "vite build",
     "preview": "vite preview"
   },

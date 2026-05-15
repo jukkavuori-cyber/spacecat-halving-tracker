@@ -11,6 +11,7 @@ import {
 } from './extras.js';
 import { startLiveData, refreshRecentBlocks } from './live-data.js';
 import { registerServiceWorker, initInstallPrompt } from './pwa.js';
+import { currentLang, switchLang, t } from './i18n.js';
 
 // PWA bootstrap (runs before DOMContentLoaded for early SW registration)
 registerServiceWorker();
@@ -248,7 +249,7 @@ function onNewBlock(block) {
   if (fast) setTimeout(() => el('catWrapper').classList.remove('speed-boost'), 7000);
 
   popMeow(fast ? 'excited' : 'happy');
-  showToast('⛏ NEW BLOCK MINED', `Block #${fmt(block)} confirmed`);
+  showToast(t('toast.new_block'), t('toast.block_confirmed', { block: fmt(block) }));
 
   const hb = el('headerBlock');
   hb.classList.add('flash');
@@ -796,7 +797,7 @@ window.shareTracker = async () => {
   const url = `${location.origin}${location.pathname}?block=${state.currentBlock}`;
   try {
     await navigator.clipboard.writeText(url);
-    showToast('🔗 LINK COPIED!', `Sharing block #${fmt(state.currentBlock)}`);
+    showToast(t('toast.link_copied'), t('toast.sharing_block', { block: fmt(state.currentBlock) }));
   } catch { prompt('Copy this link:', url); }
 };
 
@@ -934,6 +935,13 @@ window.addEventListener('DOMContentLoaded', () => {
   renderCyclePhase(halvingProgress(state.currentBlock).progress);
   startLiveData();
   initInstallPrompt();
+
+  // Language switcher
+  const langSel = el('langSwitcher');
+  if (langSel) {
+    langSel.value = currentLang;
+    langSel.addEventListener('change', (e) => switchLang(e.target.value));
+  }
 
   window.addEventListener('resize', () => {
     const { progress } = halvingProgress(state.currentBlock);

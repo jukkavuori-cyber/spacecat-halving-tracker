@@ -69,6 +69,13 @@ html, body { height: 100%; overflow: hidden; background: var(--bg); color: var(-
   -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
 .logo-sub { font-size: .50rem; letter-spacing: .2em; color: var(--text-dim); margin-top: 2px; }
 .header-r { display: flex; align-items: center; gap: 14px; }
+.lang-switcher {
+  font-family: var(--fh); font-size: .55rem; letter-spacing: .1em;
+  padding: 4px 8px; background: oklch(.08 .04 265 / .8);
+  border: 1px solid var(--border); color: var(--text);
+  cursor: pointer; appearance: none;
+}
+.lang-switcher:hover { border-color: var(--accent-a); }
 .hblock { font-family: var(--fh); font-size: .62rem; font-weight: 700; color: var(--accent-a); letter-spacing: .06em; }
 .hblock.flash { animation: hflash .6s ease; }
 @keyframes hflash { 0%,100%{color:var(--accent-a)} 50%{color:var(--green);text-shadow:0 0 14px var(--green)} }
