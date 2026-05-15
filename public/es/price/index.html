@@ -1,12 +1,12 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="es">
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>BTC Price Tracker — SpaceCat</title>
-<meta name="description" content="Live Bitcoin price tracker with multi-timeframe charts, BTC dominance, hashrate, Fear &amp; Greed and cycle comparisons. Real-time data, beautifully visualized." />
+<title>Rastreador de Precio BTC — SpaceCat</title>
+<meta name="description" content="Rastreador de precio de Bitcoin en vivo con gráficos multi-temporales, dominancia BTC, hashrate, Miedo y Codicia y comparaciones de ciclos. Datos en tiempo real, bellamente visualizados." />
 <meta name="theme-color" content="#02020e" />
-<link rel="canonical" href="https://spacecat.academy/price/" />
+<link rel="canonical" href="https://spacecat.academy/es/price/" />
 <link rel="alternate" hreflang="en" href="https://spacecat.academy/price/" />
 <link rel="alternate" hreflang="es" href="https://spacecat.academy/es/price/" />
 <link rel="alternate" hreflang="x-default" href="https://spacecat.academy/price/" />
@@ -25,9 +25,10 @@
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
 
 <meta property="og:type" content="website" />
-<meta property="og:url" content="https://spacecat.academy/price/" />
-<meta property="og:title" content="BTC Price Tracker — SpaceCat" />
-<meta property="og:description" content="Live Bitcoin price tracker with multi-timeframe charts, dominance, hashrate, Fear &amp; Greed and cycle comparisons." />
+<meta property="og:url" content="https://spacecat.academy/es/price/" />
+<meta property="og:title" content="Rastreador de Precio BTC — SpaceCat" />
+<meta property="og:description" content="Rastreador de precio de Bitcoin en vivo con gráficos multi-temporales, dominancia, hashrate, Miedo y Codicia y comparaciones de ciclos." />
+<meta property="og:locale" content="es_ES" />
 <meta property="og:image" content="https://spacecat.academy/og-image.png" />
 <meta name="twitter:card" content="summary_large_image" />
 
@@ -218,14 +219,14 @@
     <img src="/logo.png" alt="SpaceCat" width="66" height="44" />
     <div>
       <div class="brand-text">SPACECAT</div>
-      <div class="brand-sub">BTC Price Tracker</div>
+      <div class="brand-sub">Rastreador de Precio BTC</div>
     </div>
   </a>
   <nav class="nav">
-    <a href="/">⌛ Halving</a>
-    <a href="/price/" class="active">📊 Price</a>
-    <a href="/about/">? About</a>
-    <span class="live-pill"><span class="ldot"></span>LIVE</span>
+    <a href="/es/">⌛ Halving</a>
+    <a href="/es/price/" class="active">📊 Precio</a>
+    <a href="/es/about/">? Acerca</a>
+    <span class="live-pill"><span class="ldot"></span>EN VIVO</span>
   </nav>
 </header>
 
@@ -238,22 +239,22 @@
       <div class="pl-value" id="bigPrice">—</div>
       <div class="pl-change" id="bigChange">—</div>
       <div class="pl-meta">
-        <div class="pl-meta-item"><div class="l">24h High</div><div class="v" id="highStat">—</div></div>
-        <div class="pl-meta-item"><div class="l">24h Low</div><div class="v" id="lowStat">—</div></div>
-        <div class="pl-meta-item"><div class="l">24h Volume</div><div class="v" id="volStat">—</div></div>
-        <div class="pl-meta-item"><div class="l">Market Cap</div><div class="v" id="capStat">—</div></div>
+        <div class="pl-meta-item"><div class="l">Máx 24h</div><div class="v" id="highStat">—</div></div>
+        <div class="pl-meta-item"><div class="l">Mín 24h</div><div class="v" id="lowStat">—</div></div>
+        <div class="pl-meta-item"><div class="l">Volumen 24h</div><div class="v" id="volStat">—</div></div>
+        <div class="pl-meta-item"><div class="l">Capitalización</div><div class="v" id="capStat">—</div></div>
       </div>
     </div>
 
     <div class="stats-grid">
-      <div class="stat gold"><div class="l">All-Time High</div><div class="v" id="athStat">—</div><div class="s" id="athDate">—</div></div>
-      <div class="stat"><div class="l">From ATH</div><div class="v" id="fromAth">—</div><div class="s">discount to peak</div></div>
-      <div class="stat green"><div class="l">BTC Dominance</div><div class="v" id="domStat">—</div><div class="s">of total crypto mcap</div></div>
-      <div class="stat accent"><div class="l">Sats / USD</div><div class="v" id="satsStat">—</div><div class="s">how many sats $1 buys</div></div>
-      <div class="stat"><div class="l">7d Change</div><div class="v" id="d7Stat">—</div><div class="s">vs. last week</div></div>
-      <div class="stat gold"><div class="l">30d Change</div><div class="v" id="d30Stat">—</div><div class="s">vs. last month</div></div>
-      <div class="stat green"><div class="l">200d MA</div><div class="v" id="ma200Stat">—</div><div class="s">long-term trend</div></div>
-      <div class="stat accent"><div class="l">YTD</div><div class="v" id="ytdStat">—</div><div class="s">year to date</div></div>
+      <div class="stat gold"><div class="l">Máximo Histórico</div><div class="v" id="athStat">—</div><div class="s" id="athDate">—</div></div>
+      <div class="stat"><div class="l">Desde ATH</div><div class="v" id="fromAth">—</div><div class="s">descuento al pico</div></div>
+      <div class="stat green"><div class="l">Dominancia BTC</div><div class="v" id="domStat">—</div><div class="s">del mercado total cripto</div></div>
+      <div class="stat accent"><div class="l">Sats / USD</div><div class="v" id="satsStat">—</div><div class="s">cuántos sats compra $1</div></div>
+      <div class="stat"><div class="l">Cambio 7d</div><div class="v" id="d7Stat">—</div><div class="s">vs. semana pasada</div></div>
+      <div class="stat gold"><div class="l">Cambio 30d</div><div class="v" id="d30Stat">—</div><div class="s">vs. mes pasado</div></div>
+      <div class="stat green"><div class="l">MA 200d</div><div class="v" id="ma200Stat">—</div><div class="s">tendencia largo plazo</div></div>
+      <div class="stat accent"><div class="l">Año actual</div><div class="v" id="ytdStat">—</div><div class="s">YTD</div></div>
     </div>
   </div>
 
@@ -261,7 +262,7 @@
   <div class="panel">
     <div class="panel-head">
       <div>
-        <div class="panel-title">📈 BTC Price History</div>
+        <div class="panel-title">📈 Historial de Precio BTC</div>
         <div class="panel-sub">USD · Binance spot · UTC</div>
       </div>
       <div class="pills" id="rangePills">
@@ -278,7 +279,7 @@
     </div>
     <div class="chart-wrap">
       <canvas id="mainChart"></canvas>
-      <div class="chart-loading" id="mainLoading">Loading price data…</div>
+      <div class="chart-loading" id="mainLoading">Cargando datos de precio…</div>
     </div>
   </div>
 
@@ -286,28 +287,28 @@
   <div class="panel">
     <div class="panel-head">
       <div>
-        <div class="panel-title">🔄 Halving Cycle Comparison</div>
-        <div class="panel-sub">Performance after each halving · normalized to halving block</div>
+        <div class="panel-title">🔄 Comparación de Ciclos Halving</div>
+        <div class="panel-sub">Rendimiento después de cada halving · normalizado al bloque del halving</div>
       </div>
     </div>
     <div class="chart-wrap" style="height: 360px;">
       <canvas id="cycleChart"></canvas>
-      <div class="chart-loading" id="cycleLoading">Loading cycle data…</div>
+      <div class="chart-loading" id="cycleLoading">Cargando datos del ciclo…</div>
     </div>
   </div>
 
   <!-- Secondary panels -->
   <div class="secondary-grid">
     <div class="mini-panel">
-      <div class="panel-head"><div><div class="panel-title">😱 Fear &amp; Greed</div><div class="panel-sub">last 30 days</div></div></div>
-      <div class="chart-wrap"><div class="fg-display" id="fgDisplay">Loading…</div></div>
+      <div class="panel-head"><div><div class="panel-title">😱 Miedo y Codicia</div><div class="panel-sub">últimos 30 días</div></div></div>
+      <div class="chart-wrap"><div class="fg-display" id="fgDisplay">Cargando…</div></div>
     </div>
     <div class="mini-panel">
-      <div class="panel-head"><div><div class="panel-title">🌐 BTC Dominance</div><div class="panel-sub">% of crypto market · 90d</div></div></div>
+      <div class="panel-head"><div><div class="panel-title">🌐 Dominancia BTC</div><div class="panel-sub">% del mercado cripto · 90d</div></div></div>
       <div class="chart-wrap"><canvas id="domChart"></canvas></div>
     </div>
     <div class="mini-panel">
-      <div class="panel-head"><div><div class="panel-title">⚡ Hashrate</div><div class="panel-sub">EH/s · 6 month trend</div></div></div>
+      <div class="panel-head"><div><div class="panel-title">⚡ Hashrate</div><div class="panel-sub">EH/s · tendencia 6 meses</div></div></div>
       <div class="chart-wrap"><canvas id="hashChart"></canvas></div>
     </div>
   </div>
@@ -315,7 +316,7 @@
 </main>
 
 <footer>
-  © 2026 <a href="/">SpaceCat</a> · Data: <a href="https://binance.com" target="_blank" rel="noopener">Binance</a> · <a href="https://api.coingecko.com" target="_blank" rel="noopener">CoinGecko</a> · <a href="https://mempool.space" target="_blank" rel="noopener">mempool.space</a> · <a href="https://alternative.me" target="_blank" rel="noopener">Alternative.me</a>
+  © 2026 <a href="/es/">SpaceCat</a> · Datos: <a href="https://binance.com" target="_blank" rel="noopener">Binance</a> · <a href="https://api.coingecko.com" target="_blank" rel="noopener">CoinGecko</a> · <a href="https://mempool.space" target="_blank" rel="noopener">mempool.space</a> · <a href="https://alternative.me" target="_blank" rel="noopener">Alternative.me</a>
 </footer>
 
 <script>
@@ -616,8 +617,8 @@ async function renderCycleComparison() {
     options: {
       responsive: true, maintainAspectRatio: false,
       scales: {
-        x: { type: 'linear', title: { display: true, text: 'Days after halving', color: '#667', font: { size: 10 } }, grid: { color: 'rgba(120,80,200,0.07)' }, ticks: { color: '#667' } },
-        y: { type: 'logarithmic', title: { display: true, text: '% gain from halving (log)', color: '#667', font: { size: 10 } }, ticks: { callback: v => v + '%', color: '#667' }, grid: { color: 'rgba(120,80,200,0.07)' } },
+        x: { type: 'linear', title: { display: true, text: 'Días tras halving', color: '#667', font: { size: 10 } }, grid: { color: 'rgba(120,80,200,0.07)' }, ticks: { color: '#667' } },
+        y: { type: 'logarithmic', title: { display: true, text: '% de ganancia desde halving (log)', color: '#667', font: { size: 10 } }, ticks: { callback: v => v + '%', color: '#667' }, grid: { color: 'rgba(120,80,200,0.07)' } },
       },
       plugins: {
         legend: { display: true, position: 'bottom', labels: { color: '#aac', font: { family: 'Orbitron', size: 10 }, usePointStyle: true } },
