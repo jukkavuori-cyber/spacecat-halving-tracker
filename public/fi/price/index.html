@@ -586,22 +586,26 @@ async function renderCycleComparison() {
   const datasets = [];
   const colors = ['rgba(80,200,230,1)','rgba(160,100,255,1)','rgba(255,215,90,1)','rgba(247,147,26,1)'];
 
-  for (let i = 1; i < HALVINGS.length; i++) {
+  // Bitstamp 3-day candles go back to 2011, so we can include Halving I and the
+  // start of Halving II that Binance is missing.
+  for (let i = 0; i < HALVINGS.length; i++) {
     const halving = HALVINGS[i];
     const isCurrent = (i === HALVINGS.length - 1);
     try {
-      const start = new Date(halving.date).getTime();
-      const url = `https://api.binance.com/api/v3/klines?symbol=BTCUSDT&interval=1w&startTime=${start}&limit=220`;
+      const startMs = new Date(halving.date).getTime();
+      const startSec = Math.floor(startMs / 1000);
+      const url = `https://www.bitstamp.net/api/v2/ohlc/btcusd/?step=259200&start=${startSec}&limit=500`;
       const r = await fetch(url);
       if (!r.ok) continue;
-      const arr = await r.json();
+      const json = await r.json();
+      const arr = (json.data && json.data.ohlc) || [];
       if (!arr.length) continue;
 
       const base = halving.priceAtHalving;
       const data = arr.map(k => ({
-        x: Math.round((+k[0] - start) / 86400e3),
-        y: (+k[4] / base) * 100,
-      })).filter(p => p.x <= CYCLE_DAYS + 30);
+        x: Math.round((+k.timestamp * 1000 - startMs) / 86400e3),
+        y: (+k.close / base) * 100,
+      })).filter(p => p.x >= 0 && p.x <= CYCLE_DAYS + 30);
 
       const colorBorder = colors[i];
       const colorFill   = isCurrent ? 'rgba(247,147,26,0.10)' : colorBorder.replace('1)', '0.06)');

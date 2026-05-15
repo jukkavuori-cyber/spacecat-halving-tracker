@@ -586,25 +586,27 @@ async function renderCycleComparison() {
   const datasets = [];
   const colors = ['rgba(80,200,230,1)','rgba(160,100,255,1)','rgba(255,215,90,1)','rgba(247,147,26,1)'];
 
-  // Weekly candles → covers a full 4-year cycle (~210 candles) inside Binance's 1000-limit
-  for (let i = 1; i < HALVINGS.length; i++) { // skip Halving I (Binance has no spot data)
+  // Bitstamp 3-day candles go back to 2011, so we can include Halving I and the
+  // start of Halving II that Binance is missing. One request per cycle (~486
+  // candles for a full 4-year cycle, well within the 1000 limit).
+  for (let i = 0; i < HALVINGS.length; i++) {
     const halving = HALVINGS[i];
     const isCurrent = (i === HALVINGS.length - 1);
     try {
-      const start = new Date(halving.date).getTime();
-      const url = `https://api.binance.com/api/v3/klines?symbol=BTCUSDT&interval=1w&startTime=${start}&limit=220`;
+      const startMs = new Date(halving.date).getTime();
+      const startSec = Math.floor(startMs / 1000);
+      const url = `https://www.bitstamp.net/api/v2/ohlc/btcusd/?step=259200&start=${startSec}&limit=500`;
       const r = await fetch(url);
       if (!r.ok) continue;
-      const arr = await r.json();
+      const json = await r.json();
+      const arr = (json.data && json.data.ohlc) || [];
       if (!arr.length) continue;
 
-      // Normalize to the *actual* halving-day price (Binance may not have data from
-      // the first day of older cycles — for Halving II its spot history begins 2017)
       const base = halving.priceAtHalving;
       const data = arr.map(k => ({
-        x: Math.round((+k[0] - start) / 86400e3), // days after halving
-        y: (+k[4] / base) * 100,
-      })).filter(p => p.x <= CYCLE_DAYS + 30); // clamp to one cycle
+        x: Math.round((+k.timestamp * 1000 - startMs) / 86400e3), // days after halving
+        y: (+k.close / base) * 100,
+      })).filter(p => p.x >= 0 && p.x <= CYCLE_DAYS + 30);
 
       const colorBorder = colors[i];
       const colorFill   = isCurrent ? 'rgba(247,147,26,0.10)' : colorBorder.replace('1)', '0.06)');
