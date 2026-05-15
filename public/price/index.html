@@ -586,9 +586,10 @@ async function renderCycleComparison() {
   // For each halving, fetch ~750 days of daily closes starting from halving date
   for (let i = 1; i < HALVINGS.length; i++) { // skip Halving I (Binance data starts 2017)
     const halving = HALVINGS[i];
+    const isCurrent = (i === HALVINGS.length - 1);
     try {
       const start = new Date(halving.date).getTime();
-      const days = (i === HALVINGS.length - 1) // ongoing cycle
+      const days = isCurrent
         ? Math.min(750, Math.floor((Date.now() - start) / 86400e3))
         : 750;
       const url = `https://api.binance.com/api/v3/klines?symbol=BTCUSDT&interval=1d&startTime=${start}&limit=${days}`;
@@ -598,13 +599,28 @@ async function renderCycleComparison() {
       if (!arr.length) continue;
       const base = +arr[0][4];
       const data = arr.map((k, idx) => ({ x: idx, y: (+k[4] / base) * 100 }));
+
+      // Use a bright Bitcoin-orange for the current cycle so it stands out
+      const colorBorder = isCurrent ? 'rgba(247,147,26,1)' : colors[i];
+      const colorFill   = isCurrent ? 'rgba(247,147,26,0.10)' : colors[i].replace('1)', '0.07)');
+      const lastIdx     = data.length - 1;
+
       datasets.push({
-        label: 'Halving ' + halving.id + ' (' + halving.date.slice(0,4) + ')',
+        label: 'Halving ' + halving.id + ' (' + halving.date.slice(0,4) + ')'
+               + (isCurrent ? ' · NOW' : ''),
         data,
-        borderColor: colors[i],
-        backgroundColor: colors[i].replace('1)', '0.07)'),
-        borderWidth: i === HALVINGS.length - 1 ? 2.5 : 1.6,
-        fill: false, tension: .2, pointRadius: 0,
+        borderColor: colorBorder,
+        backgroundColor: colorFill,
+        borderWidth: isCurrent ? 3 : 1.5,
+        fill: isCurrent,
+        tension: .2,
+        // For the current cycle, draw a marker at the very last point ("you are here")
+        pointRadius:        isCurrent ? data.map((_, idx) => idx === lastIdx ? 6 : 0) : 0,
+        pointHoverRadius:   isCurrent ? data.map((_, idx) => idx === lastIdx ? 8 : 0) : 0,
+        pointBackgroundColor: '#ffffff',
+        pointBorderColor:     colorBorder,
+        pointBorderWidth: 2,
+        order: isCurrent ? 0 : 1, // draw current line on top
       });
     } catch {}
   }
