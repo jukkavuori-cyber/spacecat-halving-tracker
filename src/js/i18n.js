@@ -9,8 +9,9 @@
 import en from '../i18n/en.json';
 import es from '../i18n/es.json';
 import fi from '../i18n/fi.json';
+import pt from '../i18n/pt.json';
 
-const DICTS = { en, es, fi };
+const DICTS = { en, es, fi, pt };
 const DEFAULT_LANG = 'en';
 
 function detectLang() {

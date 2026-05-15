@@ -10,6 +10,7 @@ const root = resolve(__dirname, '..');
 const LANGS = [
   { code: 'es', canonicalSuffix: '/es/' },
   { code: 'fi', canonicalSuffix: '/fi/' },
+  { code: 'pt', canonicalSuffix: '/pt/' },
 ];
 
 // Build the canonical hreflang block once, shared by all language pages
