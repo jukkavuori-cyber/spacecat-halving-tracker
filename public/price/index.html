@@ -334,11 +334,14 @@ const fmtBig = n => {
 const fmtPct = (n, dec = 2) => (n>=0?'+':'') + n.toFixed(dec) + '%';
 
 const HALVINGS = [
-  { id: 'I',   date: '2012-11-28', block: 210000 },
-  { id: 'II',  date: '2016-07-09', block: 420000 },
-  { id: 'III', date: '2020-05-11', block: 630000 },
-  { id: 'IV',  date: '2024-04-19', block: 840000 },
+  { id: 'I',   date: '2012-11-28', block: 210000, priceAtHalving:    12 },
+  { id: 'II',  date: '2016-07-09', block: 420000, priceAtHalving:   650 },
+  { id: 'III', date: '2020-05-11', block: 630000, priceAtHalving:  8600 },
+  { id: 'IV',  date: '2024-04-19', block: 840000, priceAtHalving: 63700 },
 ];
+
+// One full Bitcoin halving cycle is ~210,000 blocks × 10 min ≈ 1458 days ≈ 4 years
+const CYCLE_DAYS = 1458;
 
 // ── Chart.js defaults ──────────────────────────────────────────────────────
 Chart.defaults.font.family = "'Space Mono', monospace";
@@ -581,28 +584,30 @@ async function renderHash() {
 async function renderCycleComparison() {
   document.getElementById('cycleLoading').style.display = 'flex';
   const datasets = [];
-  const colors = ['rgba(80,200,230,1)','rgba(160,100,255,1)','rgba(255,215,90,1)','rgba(120,220,160,1)'];
+  const colors = ['rgba(80,200,230,1)','rgba(160,100,255,1)','rgba(255,215,90,1)','rgba(247,147,26,1)'];
 
-  // For each halving, fetch ~750 days of daily closes starting from halving date
-  for (let i = 1; i < HALVINGS.length; i++) { // skip Halving I (Binance data starts 2017)
+  // Weekly candles → covers a full 4-year cycle (~210 candles) inside Binance's 1000-limit
+  for (let i = 1; i < HALVINGS.length; i++) { // skip Halving I (Binance has no spot data)
     const halving = HALVINGS[i];
     const isCurrent = (i === HALVINGS.length - 1);
     try {
       const start = new Date(halving.date).getTime();
-      const days = isCurrent
-        ? Math.min(750, Math.floor((Date.now() - start) / 86400e3))
-        : 750;
-      const url = `https://api.binance.com/api/v3/klines?symbol=BTCUSDT&interval=1d&startTime=${start}&limit=${days}`;
+      const url = `https://api.binance.com/api/v3/klines?symbol=BTCUSDT&interval=1w&startTime=${start}&limit=220`;
       const r = await fetch(url);
       if (!r.ok) continue;
       const arr = await r.json();
       if (!arr.length) continue;
-      const base = +arr[0][4];
-      const data = arr.map((k, idx) => ({ x: idx, y: (+k[4] / base) * 100 }));
 
-      // Use a bright Bitcoin-orange for the current cycle so it stands out
-      const colorBorder = isCurrent ? 'rgba(247,147,26,1)' : colors[i];
-      const colorFill   = isCurrent ? 'rgba(247,147,26,0.10)' : colors[i].replace('1)', '0.07)');
+      // Normalize to the *actual* halving-day price (Binance may not have data from
+      // the first day of older cycles — for Halving II its spot history begins 2017)
+      const base = halving.priceAtHalving;
+      const data = arr.map(k => ({
+        x: Math.round((+k[0] - start) / 86400e3), // days after halving
+        y: (+k[4] / base) * 100,
+      })).filter(p => p.x <= CYCLE_DAYS + 30); // clamp to one cycle
+
+      const colorBorder = colors[i];
+      const colorFill   = isCurrent ? 'rgba(247,147,26,0.10)' : colorBorder.replace('1)', '0.06)');
       const lastIdx     = data.length - 1;
 
       datasets.push({
@@ -611,16 +616,15 @@ async function renderCycleComparison() {
         data,
         borderColor: colorBorder,
         backgroundColor: colorFill,
-        borderWidth: isCurrent ? 3 : 1.5,
+        borderWidth: isCurrent ? 3 : 1.6,
         fill: isCurrent,
-        tension: .2,
-        // For the current cycle, draw a marker at the very last point ("you are here")
+        tension: .25,
         pointRadius:        isCurrent ? data.map((_, idx) => idx === lastIdx ? 6 : 0) : 0,
         pointHoverRadius:   isCurrent ? data.map((_, idx) => idx === lastIdx ? 8 : 0) : 0,
         pointBackgroundColor: '#ffffff',
         pointBorderColor:     colorBorder,
         pointBorderWidth: 2,
-        order: isCurrent ? 0 : 1, // draw current line on top
+        order: isCurrent ? 0 : 1,
       });
     } catch {}
   }
@@ -635,12 +639,25 @@ async function renderCycleComparison() {
     options: {
       responsive: true, maintainAspectRatio: false,
       scales: {
-        x: { type: 'linear', title: { display: true, text: 'Days after halving', color: '#667', font: { size: 10 } }, grid: { color: 'rgba(120,80,200,0.07)' }, ticks: { color: '#667' } },
-        y: { type: 'logarithmic', title: { display: true, text: '% gain from halving (log)', color: '#667', font: { size: 10 } }, ticks: { callback: v => v + '%', color: '#667' }, grid: { color: 'rgba(120,80,200,0.07)' } },
+        x: {
+          type: 'linear', min: 0, max: CYCLE_DAYS,
+          title: { display: true, text: 'Days after halving (one full cycle = ~1,458 days)', color: '#667', font: { size: 10 } },
+          grid: { color: 'rgba(120,80,200,0.07)' },
+          ticks: { color: '#667', stepSize: 365, callback: v => v + 'd' },
+        },
+        y: {
+          type: 'logarithmic',
+          title: { display: true, text: '% gain from halving (log)', color: '#667', font: { size: 10 } },
+          ticks: { callback: v => v + '%', color: '#667' },
+          grid: { color: 'rgba(120,80,200,0.07)' },
+        },
       },
       plugins: {
         legend: { display: true, position: 'bottom', labels: { color: '#aac', font: { family: 'Orbitron', size: 10 }, usePointStyle: true } },
-        tooltip: { backgroundColor: 'rgba(2,2,14,0.95)', callbacks: { label: c => c.dataset.label + ': ' + c.parsed.y.toFixed(0) + '%' } },
+        tooltip: { backgroundColor: 'rgba(2,2,14,0.95)', callbacks: {
+          title: items => 'Day ' + items[0].parsed.x,
+          label: c => c.dataset.label + ': ' + c.parsed.y.toFixed(0) + '%',
+        } },
       },
     },
   });

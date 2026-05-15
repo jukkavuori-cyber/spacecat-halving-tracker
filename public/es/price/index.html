@@ -335,11 +335,13 @@ const fmtBig = n => {
 const fmtPct = (n, dec = 2) => (n>=0?'+':'') + n.toFixed(dec) + '%';
 
 const HALVINGS = [
-  { id: 'I',   date: '2012-11-28', block: 210000 },
-  { id: 'II',  date: '2016-07-09', block: 420000 },
-  { id: 'III', date: '2020-05-11', block: 630000 },
-  { id: 'IV',  date: '2024-04-19', block: 840000 },
+  { id: 'I',   date: '2012-11-28', block: 210000, priceAtHalving:    12 },
+  { id: 'II',  date: '2016-07-09', block: 420000, priceAtHalving:   650 },
+  { id: 'III', date: '2020-05-11', block: 630000, priceAtHalving:  8600 },
+  { id: 'IV',  date: '2024-04-19', block: 840000, priceAtHalving: 63700 },
 ];
+
+const CYCLE_DAYS = 1458;
 
 // ── Chart.js defaults ──────────────────────────────────────────────────────
 Chart.defaults.font.family = "'Space Mono', monospace";
@@ -582,27 +584,27 @@ async function renderHash() {
 async function renderCycleComparison() {
   document.getElementById('cycleLoading').style.display = 'flex';
   const datasets = [];
-  const colors = ['rgba(80,200,230,1)','rgba(160,100,255,1)','rgba(255,215,90,1)','rgba(120,220,160,1)'];
+  const colors = ['rgba(80,200,230,1)','rgba(160,100,255,1)','rgba(255,215,90,1)','rgba(247,147,26,1)'];
 
-  // For each halving, fetch ~750 days of daily closes starting from halving date
-  for (let i = 1; i < HALVINGS.length; i++) { // skip Halving I (Binance data starts 2017)
+  for (let i = 1; i < HALVINGS.length; i++) {
     const halving = HALVINGS[i];
     const isCurrent = (i === HALVINGS.length - 1);
     try {
       const start = new Date(halving.date).getTime();
-      const days = isCurrent
-        ? Math.min(750, Math.floor((Date.now() - start) / 86400e3))
-        : 750;
-      const url = `https://api.binance.com/api/v3/klines?symbol=BTCUSDT&interval=1d&startTime=${start}&limit=${days}`;
+      const url = `https://api.binance.com/api/v3/klines?symbol=BTCUSDT&interval=1w&startTime=${start}&limit=220`;
       const r = await fetch(url);
       if (!r.ok) continue;
       const arr = await r.json();
       if (!arr.length) continue;
-      const base = +arr[0][4];
-      const data = arr.map((k, idx) => ({ x: idx, y: (+k[4] / base) * 100 }));
 
-      const colorBorder = isCurrent ? 'rgba(247,147,26,1)' : colors[i];
-      const colorFill   = isCurrent ? 'rgba(247,147,26,0.10)' : colors[i].replace('1)', '0.07)');
+      const base = halving.priceAtHalving;
+      const data = arr.map(k => ({
+        x: Math.round((+k[0] - start) / 86400e3),
+        y: (+k[4] / base) * 100,
+      })).filter(p => p.x <= CYCLE_DAYS + 30);
+
+      const colorBorder = colors[i];
+      const colorFill   = isCurrent ? 'rgba(247,147,26,0.10)' : colorBorder.replace('1)', '0.06)');
       const lastIdx     = data.length - 1;
 
       datasets.push({
@@ -611,8 +613,8 @@ async function renderCycleComparison() {
         data,
         borderColor: colorBorder,
         backgroundColor: colorFill,
-        borderWidth: isCurrent ? 3 : 1.5,
-        fill: isCurrent, tension: .2,
+        borderWidth: isCurrent ? 3 : 1.6,
+        fill: isCurrent, tension: .25,
         pointRadius:        isCurrent ? data.map((_, idx) => idx === lastIdx ? 6 : 0) : 0,
         pointHoverRadius:   isCurrent ? data.map((_, idx) => idx === lastIdx ? 8 : 0) : 0,
         pointBackgroundColor: '#ffffff',
@@ -624,7 +626,7 @@ async function renderCycleComparison() {
   }
   document.getElementById('cycleLoading').style.display = 'none';
 
-  if (!datasets.length) { document.getElementById('cycleLoading').textContent = 'Cycle data unavailable.'; document.getElementById('cycleLoading').style.display = 'flex'; return; }
+  if (!datasets.length) { document.getElementById('cycleLoading').textContent = 'Datos no disponibles.'; document.getElementById('cycleLoading').style.display = 'flex'; return; }
 
   const ctx = document.getElementById('cycleChart').getContext('2d');
   new Chart(ctx, {
@@ -633,12 +635,21 @@ async function renderCycleComparison() {
     options: {
       responsive: true, maintainAspectRatio: false,
       scales: {
-        x: { type: 'linear', title: { display: true, text: 'Días tras halving', color: '#667', font: { size: 10 } }, grid: { color: 'rgba(120,80,200,0.07)' }, ticks: { color: '#667' } },
-        y: { type: 'logarithmic', title: { display: true, text: '% de ganancia desde halving (log)', color: '#667', font: { size: 10 } }, ticks: { callback: v => v + '%', color: '#667' }, grid: { color: 'rgba(120,80,200,0.07)' } },
+        x: { type: 'linear', min: 0, max: CYCLE_DAYS,
+          title: { display: true, text: 'Días tras halving (un ciclo completo ≈ 1.458 días)', color: '#667', font: { size: 10 } },
+          grid: { color: 'rgba(120,80,200,0.07)' },
+          ticks: { color: '#667', stepSize: 365, callback: v => v + 'd' } },
+        y: { type: 'logarithmic',
+          title: { display: true, text: '% de ganancia desde halving (log)', color: '#667', font: { size: 10 } },
+          ticks: { callback: v => v + '%', color: '#667' },
+          grid: { color: 'rgba(120,80,200,0.07)' } },
       },
       plugins: {
         legend: { display: true, position: 'bottom', labels: { color: '#aac', font: { family: 'Orbitron', size: 10 }, usePointStyle: true } },
-        tooltip: { backgroundColor: 'rgba(2,2,14,0.95)', callbacks: { label: c => c.dataset.label + ': ' + c.parsed.y.toFixed(0) + '%' } },
+        tooltip: { backgroundColor: 'rgba(2,2,14,0.95)', callbacks: {
+          title: items => 'Día ' + items[0].parsed.x,
+          label: c => c.dataset.label + ': ' + c.parsed.y.toFixed(0) + '%',
+        } },
       },
     },
   });
