@@ -76,6 +76,40 @@ export function applyTranslations(root = document) {
   root.querySelectorAll('[data-i18n-aria]').forEach((el) => {
     el.setAttribute('aria-label', t(el.getAttribute('data-i18n-aria')));
   });
+
+  // Localize internal links: /about → /<lang>/about/, /price/ → /<lang>/price/
+  if (currentLang !== DEFAULT_LANG) {
+    const prefix = `/${currentLang}`;
+    root.querySelectorAll('a[href]').forEach((el) => {
+      const href = el.getAttribute('href');
+      if (!href) return;
+      // Only rewrite internal absolute paths that aren't already language-prefixed
+      if (!href.startsWith('/')) return;
+      if (href.startsWith(`/${currentLang}/`) || href === `/${currentLang}`) return;
+      // Skip non-page paths (assets, anchors, mailto handled above)
+      if (
+        href.startsWith('/assets/') ||
+        href.startsWith('/src/') ||
+        href.startsWith('/favicon') ||
+        href.startsWith('/manifest') ||
+        href.startsWith('/sw.js') ||
+        href.startsWith('/sitemap') ||
+        href.startsWith('/robots') ||
+        href.startsWith('/og-image') ||
+        href.startsWith('/hero/') ||
+        href.startsWith('/logo')
+      ) return;
+      // Match other known language prefixes — leave them as-is (the user can
+      // intentionally link cross-language). We only rewrite English paths.
+      const otherLangPrefixes = Object.keys(DICTS).filter(l => l !== DEFAULT_LANG);
+      if (otherLangPrefixes.some(l => href.startsWith(`/${l}/`) || href === `/${l}`)) return;
+
+      // Normalize "/about" → "/about/" so the rewrite keeps the trailing slash convention
+      let normalized = href;
+      if (normalized === '/about') normalized = '/about/';
+      el.setAttribute('href', prefix + normalized);
+    });
+  }
 }
 
 // ── Switch language: navigate to the URL prefix for the chosen lang ──────
