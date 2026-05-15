@@ -71,6 +71,9 @@ const T = {
     embedP: 'Añade el countdown en vivo del halving SpaceCat a tu propio sitio con una sola línea:',
     embedTitleAttr: 'Countdown del Halving de Bitcoin',
     embedNote: 'Uso libre, sin atribución requerida (pero un enlace de vuelta se agradece 💜).',
+    apiH3: '🔌 API JSON pública',
+    apiP: 'Endpoint gratuito con CORS habilitado y datos en vivo del halving + precio. Perfecto para bots, dashboards o tu propio proyecto cripto.',
+    apiDetails: 'Devuelve el bloque actual, bloques restantes, % de progreso, días estimados hasta el próximo halving, precio BTC/USD actual, sats por dólar y la fase del ciclo actual. Caché de borde de 30 s.',
     fcard1Title: 'Bloques en vivo',
     fcard1Body: 'Los nuevos bloques aparecen en tiempo real vía conexión WebSocket a mempool.space. El contador de bloques se actualiza en cuanto se encuentra un bloque.',
     fcard2Title: 'Historial de precio',
@@ -145,6 +148,9 @@ const T = {
     embedP: 'Lisää SpaceCat-puolittumislaskuri omalle sivullesi yhdellä rivillä:',
     embedTitleAttr: 'Bitcoinin puolittumislaskuri',
     embedNote: 'Vapaa käyttö, ei vaadi maininnan (mutta paluulinkki on aina mukava 💜).',
+    apiH3: '🔌 Avoin JSON-API',
+    apiP: 'Ilmainen, CORS-yhteensopiva päätepiste live-puolittumis- ja hintadatalle. Sopii botteihin, dashboardeihin tai omaan crypto-projektiin.',
+    apiDetails: 'Palauttaa nykyisen lohkon, jäljellä olevat lohkot, edistymisen prosentteina, arvioidut päivät seuraavaan puolittumiseen, nykyisen BTC/USD-hinnan, satseja dollaria kohti ja nykyisen syklin vaiheen. Reuna-kätkö 30 s.',
     fcard1Title: 'Live-lohkot',
     fcard1Body: 'Uudet lohkot ilmestyvät reaaliajassa WebSocket-yhteydellä mempool.space:en. Lohkolaskuri päivittyy sillä hetkellä kun lohko löytyy.',
     fcard2Title: 'Hintahistoria',
@@ -219,6 +225,9 @@ const T = {
     embedP: 'Adicione o countdown ao vivo do halving SpaceCat ao seu próprio site com uma única linha:',
     embedTitleAttr: 'Countdown do Halving do Bitcoin',
     embedNote: 'Uso livre, sem atribuição obrigatória (mas um link de volta é apreciado 💜).',
+    apiH3: '🔌 API JSON pública',
+    apiP: 'Endpoint gratuito com CORS habilitado e dados ao vivo de halving + preço. Perfeito para bots, dashboards ou seu próprio projeto cripto.',
+    apiDetails: 'Retorna o bloco atual, blocos restantes, % de progresso, dias estimados até o próximo halving, preço BTC/USD atual, sats por dólar e a fase atual do ciclo. Cache de borda de 30 s.',
     fcard1Title: 'Blocos ao vivo',
     fcard1Body: 'Novos blocos aparecem em tempo real via conexão WebSocket com a mempool.space. O contador de blocos atualiza no momento em que um bloco é encontrado.',
     fcard2Title: 'Histórico de preço',
@@ -361,6 +370,17 @@ function translate(lang, t) {
   html = html.replace(/<p>Add the live SpaceCat halving countdown to your own site with a single line:<\/p>/, `<p>${t.embedP}</p>`);
   html = html.replace(/title="Bitcoin Halving Countdown"/, `title="${t.embedTitleAttr}"`);
   html = html.replace(/Free to use, no attribution required \(but a link back is appreciated 💜\)\./, t.embedNote);
+
+  // Public JSON API section
+  html = html.replace(/>🔌 Public JSON API</, `>${t.apiH3}<`);
+  html = html.replace(
+    /<p>Free, CORS-enabled endpoint with live halving \+ price data\. Perfect for bots, dashboards or your own crypto project\.<\/p>/,
+    `<p>${t.apiP}</p>`
+  );
+  html = html.replace(
+    /Returns current block, blocks remaining, progress %, est\. days to next halving, current BTC\/USD price, sats per dollar, and the current cycle phase\. Edge-cached for 30 s\./,
+    t.apiDetails
+  );
 
   // Feature info cards
   html = html.replace(/<div class="info-title">Live Blocks<\/div>/, `<div class="info-title">${t.fcard1Title}</div>`);

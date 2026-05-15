@@ -29,6 +29,9 @@ jobs:
       - name: Copy fresh OG image to dist
         run: cp public/og-image.png dist/og-image.png
 
+      - name: Copy Pages Functions into deploy dir
+        run: cp -r functions dist/functions
+
       - name: Create Pages project if not exists
         run: npx wrangler pages project create spacecat-halving-tracker --production-branch main || true
         env:

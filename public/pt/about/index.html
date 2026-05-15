@@ -463,6 +463,23 @@
         title="Countdown do Halving do Bitcoin"&gt;&lt;/iframe&gt;</code></pre>
       <p style="font-size:.85rem;color:var(--text-dim);margin-top:6px;">Uso livre, sem atribuição obrigatória (mas um link de volta é apreciado 💜).</p>
 
+      <h3 style="margin-top:32px;font-family:'Orbitron',sans-serif;font-size:1rem;letter-spacing:.06em;color:var(--accent);">🔌 API JSON pública</h3>
+      <p>Endpoint gratuito com CORS habilitado e dados ao vivo de halving + preço. Perfeito para bots, dashboards ou seu próprio projeto cripto.</p>
+      <pre style="background:rgba(20,10,40,.6);border:1px solid var(--border);padding:12px 16px;margin-top:10px;overflow-x:auto;font-size:.78rem;color:var(--text);"><code>GET https://spacecat.academy/api/halving.json</code></pre>
+      <p style="font-size:.85rem;color:var(--text-dim);margin-top:6px;">Retorna o bloco atual, blocos restantes, % de progresso, dias estimados até o próximo halving, preço BTC/USD atual, sats por dólar e a fase atual do ciclo. Cache de borda de 30 s.</p>
+      <pre style="background:rgba(20,10,40,.6);border:1px solid var(--border);padding:12px 16px;margin-top:10px;overflow-x:auto;font-size:.72rem;color:var(--text-dim);line-height:1.5;"><code>{
+  "halving": {
+    "currentBlock": 949812,
+    "nextHalvingBlock": 1050000,
+    "blocksRemaining": 100188,
+    "progressPercent": 52.29,
+    "estimatedDaysLeft": 695.75,
+    "currentReward": 3.125
+  },
+  "price": { "btcUsd": 80123.4, "satsPerUsd": 1249 },
+  "cycle": { "phase": "Expansion", "label": "Early cycle growth" }
+}</code></pre>
+
       <div class="info-grid">
         <div class="info-card purple">
           <div class="info-icon">⚡</div>

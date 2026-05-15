@@ -463,6 +463,23 @@
         title="Bitcoinin puolittumislaskuri"&gt;&lt;/iframe&gt;</code></pre>
       <p style="font-size:.85rem;color:var(--text-dim);margin-top:6px;">Vapaa käyttö, ei vaadi maininnan (mutta paluulinkki on aina mukava 💜).</p>
 
+      <h3 style="margin-top:32px;font-family:'Orbitron',sans-serif;font-size:1rem;letter-spacing:.06em;color:var(--accent);">🔌 Avoin JSON-API</h3>
+      <p>Ilmainen, CORS-yhteensopiva päätepiste live-puolittumis- ja hintadatalle. Sopii botteihin, dashboardeihin tai omaan crypto-projektiin.</p>
+      <pre style="background:rgba(20,10,40,.6);border:1px solid var(--border);padding:12px 16px;margin-top:10px;overflow-x:auto;font-size:.78rem;color:var(--text);"><code>GET https://spacecat.academy/api/halving.json</code></pre>
+      <p style="font-size:.85rem;color:var(--text-dim);margin-top:6px;">Palauttaa nykyisen lohkon, jäljellä olevat lohkot, edistymisen prosentteina, arvioidut päivät seuraavaan puolittumiseen, nykyisen BTC/USD-hinnan, satseja dollaria kohti ja nykyisen syklin vaiheen. Reuna-kätkö 30 s.</p>
+      <pre style="background:rgba(20,10,40,.6);border:1px solid var(--border);padding:12px 16px;margin-top:10px;overflow-x:auto;font-size:.72rem;color:var(--text-dim);line-height:1.5;"><code>{
+  "halving": {
+    "currentBlock": 949812,
+    "nextHalvingBlock": 1050000,
+    "blocksRemaining": 100188,
+    "progressPercent": 52.29,
+    "estimatedDaysLeft": 695.75,
+    "currentReward": 3.125
+  },
+  "price": { "btcUsd": 80123.4, "satsPerUsd": 1249 },
+  "cycle": { "phase": "Expansion", "label": "Early cycle growth" }
+}</code></pre>
+
       <div class="info-grid">
         <div class="info-card purple">
           <div class="info-icon">⚡</div>
