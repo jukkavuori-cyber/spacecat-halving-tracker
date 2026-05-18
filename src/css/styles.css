@@ -883,7 +883,7 @@ html, body { height: 100%; overflow: hidden; background: var(--bg); color: var(-
      Hide notify, tweet, about, price (about & price move to bottom tabs). */
   #notifyBtn,
   .tweet-btn,
-  .header-r a.share-btn[href="/about"],
+  .header-r a.share-btn[href="/about/"],
   .header-r a.share-btn[href="/price/"] { display: none; }
   .header-r { gap: 8px; flex-wrap: nowrap; }
   .share-btn { padding: 5px 8px; font-size: .56rem; letter-spacing: .08em; }
