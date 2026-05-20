@@ -1,14 +1,18 @@
 // Global Pages middleware — runs on every request.
-// Forces all traffic on the .pages.dev preview domain to the canonical
-// custom domain, so Google only sees a single set of URLs.
+// Funnels all alternate hostnames into the canonical spacecat.academy so
+// Google only ever sees a single set of URLs.
+
+const CANONICAL = 'spacecat.academy';
 
 export const onRequest = async ({ request, next }) => {
   const url = new URL(request.url);
+  const host = url.hostname;
 
-  // Catch the auto-generated *.pages.dev hostname (Cloudflare doesn't let you
-  // disable it; canonical tags are not always enough to dedupe in Google).
-  if (url.hostname.endsWith('.pages.dev')) {
-    url.hostname = 'spacecat.academy';
+  // 1) Cloudflare's auto-generated preview hostname *.pages.dev
+  //    (can't be disabled from the dashboard)
+  // 2) www subdomain
+  if (host.endsWith('.pages.dev') || host === `www.${CANONICAL}`) {
+    url.hostname = CANONICAL;
     return Response.redirect(url.toString(), 301);
   }
 
