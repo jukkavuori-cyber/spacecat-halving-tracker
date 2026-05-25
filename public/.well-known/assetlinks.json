@@ -1,0 +1,8 @@
+[{
+      "relation": ["delegate_permission/common.handle_all_urls"],
+      "target": {
+        "namespace": "android_app",
+        "package_name": "academy.spacecat.app",
+        "sha256_cert_fingerprints": ["3A:8D:09:38:97:7F:16:6A:62:C2:E5:41:A2:FF:7F:27:8F:2D:23:C4:94:D8:9D:65:15:1B:26:F6:36:B1:20:B7"]
+      }
+    }]

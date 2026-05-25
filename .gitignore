@@ -1,3 +1,11 @@
 node_modules/
 dist/
 .DS_Store
+
+# Never commit signing material or the PWABuilder package — they contain
+# secrets needed to sign Play Store updates.
+android-package/
+*.keystore
+*.jks
+SpaceCat-Android/
+signing-key-info.txt
